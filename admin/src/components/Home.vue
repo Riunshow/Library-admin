@@ -5,8 +5,8 @@
       <div class="welcome">欢迎你,
         <el-dropdown @command="logout">
           <span class="el-dropdown-link">
-                  {{user_name}}<i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
+                      {{user_name}}<i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>退出</el-dropdown-item>
           </el-dropdown-menu>
@@ -50,7 +50,6 @@
     mounted() {
       // vuex
       // this.user_name = this.$store.state.loginUser.name
-
       // sessionStorage
       this.user_name = sessionStorage.user_name
     },
@@ -62,11 +61,12 @@
             // vuex
             // _this.$store.state.loginUser = {}
             // location.reload()
-
             // sessionStorage
             sessionStorage.clear();
             location.reload()
-            
+            this.$router.push({
+              path: '/login'
+            });
           })
       },
       // tab切换时，动态的切换路由

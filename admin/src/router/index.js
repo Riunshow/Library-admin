@@ -4,9 +4,10 @@ import Router from 'vue-router'
 import store from './../store'
 
 import Home from '@/components/Home'
+import FirstPage from '@/components/FirstPage'
 import Template from '@/components/Template'
 import Login from '@/components/Login'
-import ElementTable from '@/components/ElementTable'
+import UserManage from '@/components/UserManage'
 import DetailInfo from '@/components/DetailInfo'
 import Personal from '@/components/PersonalCenter'
 
@@ -26,23 +27,24 @@ const router = new Router({
                 requireAuth: true
             },
             children: [{
-                    path: '/index',
+                    path: 'index',
                     name: '首页',
-                    component: Template,
+                    component: FirstPage,
                     meta: {
                         requireAuth: true
                     },
                 },
                 {
-                    path: '/user',
+                    path: 'user',
                     name: '用户管理',
-                    component: ElementTable,
+                    component: UserManage,
                     meta: {
-                        requireAuth: true
+                        requireAuth: true,
+                        adminAuth: true
                     },
                 },
                 {
-                    path: '/userInfo/:id',
+                    path: 'userInfo/:id',
                     name: '用户详情页',
                     component: DetailInfo,
                     meta: {
@@ -50,14 +52,14 @@ const router = new Router({
                     },
                 },
                 {
-                    path: '/book',
+                    path: 'book',
                     name: '图书管理',
                     component: Template,
                     meta: {
                         requireAuth: true
                     },
                 }, {
-                    path: '/personal',
+                    path: 'personal',
                     name: '个人中心',
                     component: Personal,
                     meta: {
@@ -66,10 +68,17 @@ const router = new Router({
                 },
             ]
         },
-
         {
+            path: '/404',
+            name: '404',
+            component: Template
+        }, {
+            path: '/403',
+            name: '403 Forbidden',
+            component: Template
+        }, {
             path: '*',
-            redirect: '/'
+            redirect: '/index'
         }
     ]
 })
@@ -83,6 +92,20 @@ router.beforeEach((to, from, next) => {
             })
         } else {
             next()
+        }
+        if (to.meta.adminAuth) {
+            if (sessionStorage.user_role == 20) {
+                next()
+            } else if (sessionStorage.user_role < 20) {
+                next({
+                    path: '/403'
+                })
+            }
+        }
+        if (to.fullPath == '/') {
+            next({
+                path: '/index'
+            })
         }
     } else {
         next()

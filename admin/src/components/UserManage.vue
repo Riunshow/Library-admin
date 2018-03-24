@@ -64,7 +64,14 @@
                             <el-button type="primary" @click="getChangeRole">确 定</el-button>
                         </div>
                     </el-dialog>
-                    <el-button type="text" class="options">删除</el-button>
+                    <el-button type="text" @click="getDelRow(scope.$index, tableData)">删除</el-button>
+                    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+                        <span>确认删除?</span>
+                        <span slot="footer" class="dialog-footer">
+                            <el-button @click="dialogVisible = false">取 消</el-button>
+                            <el-button type="danger" @click.native.prevent="deleteRow()">确 定</el-button>
+                        </span>
+                    </el-dialog>
                 </template>
             </el-table-column>
         </el-table>
@@ -95,6 +102,7 @@
                 }],
                 dialogTableVisible: false,
                 dialogFormVisible: false,
+                dialogVisible: false,
                 form: {
                     name: '',
                     region: '',
@@ -126,7 +134,9 @@
                     { label: '日期', prop: 'date'},
                     { label: '姓名', prop: 'name'},
                     { label: '身份', prop: 'identity'}
-                ]
+                ],
+                delIndex: '',
+                delRows: ''
             };
         },
         mounted() {
@@ -175,9 +185,16 @@
                 }else{
                     this.newRow.identity = '其他'
                 }
+            },
+            getDelRow(index, rows){
+                this.dialogVisible = true
+                this.delIndex = index
+                this.delRows = rows
+            },
+            deleteRow() {
+                this.dialogVisible = false
+                this.delRows.splice(this.delIndex, 1);
             }
-        },
-        computed: {},
-        watch: {}
+        }
     };
 </script>
