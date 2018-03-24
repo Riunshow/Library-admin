@@ -25,7 +25,7 @@
             name: '图书管理'
           },
           {
-            route: '/peronal',
+            route: '/personal',
             name: '个人中心'
           }
         ],
@@ -42,7 +42,7 @@
             name: '图书管理'
           },
           {
-            route: '/peronal',
+            route: '/personal',
             name: '个人中心'
           }
         ],
@@ -76,7 +76,7 @@
     },
     methods: {
       isAdmin() {
-        const role = this.$store.state.loginUser.role;
+        const role = sessionStorage.user_role
         if(role == 10) {
           this.menus = this.menus1
         }else if(role == 20) {

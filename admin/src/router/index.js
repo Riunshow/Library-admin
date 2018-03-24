@@ -8,6 +8,7 @@ import Template from '@/components/Template'
 import Login from '@/components/Login'
 import ElementTable from '@/components/ElementTable'
 import DetailInfo from '@/components/DetailInfo'
+import Personal from '@/components/PersonalCenter'
 
 Vue.use(Router)
 
@@ -56,9 +57,9 @@ const router = new Router({
                         requireAuth: true
                     },
                 }, {
-                    path: '/peronal',
+                    path: '/personal',
                     name: '个人中心',
-                    component: Template,
+                    component: Personal,
                     meta: {
                         requireAuth: true
                     },
@@ -75,7 +76,8 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
     if (to.meta.requireAuth) {
-        if (store.state.loginUser.role === 0) {
+        // if (store.state.loginUser.role === 0) {
+        if (sessionStorage.length === 0) {
             next({
                 path: '/login'
             })

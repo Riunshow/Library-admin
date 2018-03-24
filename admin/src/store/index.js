@@ -12,21 +12,22 @@ const store = new Vuex.Store({
         options: [],
         activeIndex: '/user',
         userInfo: {},
-        loginUser: {
-            role: 0,
-            name: '',
-        }
+        // loginUser: {
+        //     role: 0,
+        //     name: '',
+        // }
     },
     mutations: {
-        // 登录判断
-        login(state, userData) {
-            state.loginUser.role = userData.role
-            state.loginUser.name = userData.name
-        },
-        // 登出判断
-        logout(state) {
-            state.loginUser.role = 0
-        },
+        // // 登录判断
+        // login(state, userData) {
+        //     state.loginUser.role = userData.role
+        //     state.loginUser.name = userData.name
+        // },
+        // // 登出判断
+        // logout(state) {
+        //     state.loginUser.role = 0
+        // },
+
         // 添加tabs
         add_tabs(state, data) {
             this.state.options.push(data);
