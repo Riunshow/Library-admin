@@ -10,6 +10,8 @@ import Login from '@/components/Login'
 import UserManage from '@/components/UserManage'
 import DetailInfo from '@/components/DetailInfo'
 import Personal from '@/components/PersonalCenter'
+import BookManage from '@/components/BookManage'
+
 
 Vue.use(Router)
 
@@ -54,7 +56,7 @@ const router = new Router({
                 {
                     path: 'book',
                     name: '图书管理',
-                    component: Template,
+                    component: BookManage,
                     meta: {
                         requireAuth: true
                     },
@@ -98,7 +100,7 @@ router.beforeEach((to, from, next) => {
                 next()
             } else if (sessionStorage.user_role < 20) {
                 next({
-                    path: '/403'
+                    path: '/index'
                 })
             }
         }

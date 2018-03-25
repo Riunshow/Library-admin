@@ -76,7 +76,7 @@
 
 						_this.$router.push("/index");
 					} else if (result.data.code === -1 || result.data.code === -2) {
-						_this.loginTipMsg = result.data.code === -1 ? "邮箱未注册!" : "密码错误!";
+						_this.loginTipMsg = result.data.code === -1 ? "账号未注册!" : "密码错误!";
 						_this.showLoginTip = true;
 						window.setTimeout(function() {
 							_this.showLoginTip = false;
