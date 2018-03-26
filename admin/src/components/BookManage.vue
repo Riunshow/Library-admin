@@ -67,7 +67,7 @@
                         </div>
                     </el-dialog>
                     <!-- 删除 -->
-                    <el-button type="text" @click="getDelRow(scope.$index, tableData)">删除</el-button>
+                    <el-button type="text" @click="getDelRow(scope.$index, scope.row)">删除</el-button>
                     <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
                         <span>确认删除?</span>
                         <span slot="footer" class="dialog-footer">
@@ -198,7 +198,16 @@
             },
             deleteRow() {
                 this.dialogVisible = false
-                this.delRows.splice(this.delIndex, 1);
+                this.tableData.splice(this.delIndex, 1);
+
+                const _this = this
+                const options = {
+                    'id': this.delRows.id
+                }
+                axios.post('/book/del',options)
+                    .then(() => {
+                        _this.$message('删除成功')
+                    })
             },
             exportExcel () {
                 /* generate workbook object from table */

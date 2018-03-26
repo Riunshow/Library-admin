@@ -114,6 +114,14 @@ const searchUser = (opt) => {
     }
     return users;
 }
+const delUser = (opt) => {
+    /**
+     * 传入参数
+     * {id: ")EuI0eb"}
+     */
+    const options = JSON.parse(opt.body)
+    console.log(options)
+}
 
 Mock.mock('/user/login', 'post', loginUser);
 Mock.mock('/user/logout', 'post', logout);
@@ -121,8 +129,10 @@ Mock.mock('/user/manage', 'get', userManage);
 Mock.mock('/user/category', 'get', allManager);
 Mock.mock('/user/change', 'post', changeRole);
 Mock.mock('/user/search', 'post', searchUser);
+Mock.mock('/user/del', 'post', delUser);
 
 // **********************************************************
+//  图书
 
 const searchBook = (opt) => {
     /**
@@ -210,7 +220,17 @@ const changeCate = (opt) => {
     return result;
 }
 
+const delBook = (opt) => {
+    /**
+     * 传入参数
+     * {id: ")EuI0eb"}
+     */
+    const options = JSON.parse(opt.body)
+    console.log(options)
+}
+
 Mock.mock('/book/search', 'post', searchBook);
 Mock.mock('/book/category', 'get', allBookCate);
 Mock.mock('/book/manage', 'get', bookManage);
 Mock.mock('/book/change', 'post', changeCate);
+Mock.mock('/book/del', 'post', delBook);
