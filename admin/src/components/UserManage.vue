@@ -29,10 +29,10 @@
     <div class="user-wrap">
         <div class="search-place">
             <el-input placeholder="请输入姓名" v-model="inputSearch" clearable></el-input>
-            <el-select v-model="selectSearch" placeholder="请选择" filterable>
-                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+            <el-select v-model="selectSearch" placeholder="请选择" filterable @change='getSearchRole'>
+                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value" ></el-option>
             </el-select>
-            <el-button class="searchBtn">搜索</el-button>
+            <el-button class="searchBtn" @click="searchUser">搜索</el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
         </div>
@@ -48,7 +48,7 @@
                 prop="">
                 <template scope="scope">
                     <!-- <el-button type="text" @click="onBtnDetailClick(scope.row)" class="options">详情</el-button> -->
-                    <el-button type="text" @click="clickChangeRole(scope.row)" class="options">修改权限</el-button>
+                    <el-button type="text" @click="clickChangeRole(scope.row), dialogFormVisible = true" class="options">修改权限</el-button>
                     <el-dialog title="权限管理" :visible.sync="dialogFormVisible">
                         <el-form :model="form">
                             <el-form-item label="权限选择" :label-width="formLabelWidth">
@@ -81,6 +81,7 @@
 </template>
 
 <script>
+    import axios from 'axios'
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
     export default {
@@ -88,22 +89,7 @@
             return {
                 inputSearch: '',
                 selectSearch: '',
-                options: [{
-                    value: '20',
-                    label: '系统管理员'
-                },{
-                    value: '10',
-                    label: '图书管理员'
-                },{
-                    value: '5',
-                    label: '老师'
-                },{
-                    value: '0',
-                    label: '学生'
-                },{
-                    value: '-1',
-                    label: '其他'
-                }],
+                options: [],
                 dialogTableVisible: false,
                 dialogFormVisible: false,
                 dialogVisible: false,
@@ -117,50 +103,54 @@
                 },
                 newRow: {},
                 formLabelWidth: '120px',
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '梁启源1',
-                    role: '10'
-                }, {
-                    date: '2016-05-04',
-                    name: '梁启源2',
-                    role: '20'
-                }, {
-                    date: '2016-05-01',
-                    name: '梁启源3',
-                    role: '10'
-                }, {
-                    date: '2016-05-03',
-                    name: '梁启源4',
-                    role: '20'
-                }],
+                tableData: [],
                 tableColumns: [
+                    { label: 'id', prop: 'id'},                    
                     { label: '日期', prop: 'date'},
                     { label: '姓名', prop: 'name'},
                     { label: '身份', prop: 'identity'}
                 ],
                 delIndex: '',
-                delRows: ''
+                delRows: '',
+                searchRole: '',
             };
         },
+        created(){
+            this.getCategory()
+            this.getRoleToWord()               
+        },
         mounted() {
-            this.getRoleToWord()
         },
         methods: {
+            getCategory() {
+                const _this = this                
+                axios.get('/user/category')
+                    .then(results => {
+                        _this.options = results.data
+                    })
+            },
             getRoleToWord() {
-                for (const key of this.tableData) {
-                    if (key.role == 20) {
-                        key.identity = '系统管理员'
-                    }else if(key.role == 10) {
-                        key.identity = '图书管理员'                        
-                    }else if(key.role == 5) {
-                        key.identity = '老师'                        
-                    }else if(key.role == 0) {
-                        key.identity = '学生'                     
-                    }else {
-                        key.identity = '其他'                     
-                    }
-                }
+                const _this = this
+                axios.get('/user/manage')
+                    .then(results => {
+                        _this.tableData = results.data
+                    })
+                    .then(() => {
+                        for (const key of _this.tableData) {
+                            if (key.role == 20) {
+                                key.identity = '系统管理员'
+                            }else if(key.role == 10) {
+                                key.identity = '图书管理员'                        
+                            }else if(key.role == 5) {
+                                key.identity = '老师'                        
+                            }else if(key.role == 0) {
+                                key.identity = '学生'                     
+                            }else {
+                                key.identity = '其他'                     
+                            }
+                        }
+                    })
+                
             },
             // onBtnDetailClick(row) {
             //     // 1. 用户详情存vuex
@@ -171,24 +161,46 @@
             //     });
             // },
             clickChangeRole(row) {
-                this.newRow = row                
-                this.dialogFormVisible = true
+                this.newRow = row            
             },
             getChangeRole() {
-                this.dialogFormVisible = false;
+                const _this = this
+                _this.dialogFormVisible = false;
+                _this.newRow.role = this.form.region
 
-                this.newRow.role = this.form.region
-                if (this.form.region == 20) {
-                    this.newRow.identity = '系统管理员'
-                }else if (this.form.region == 10) {
-                    this.newRow.identity = '图书管理员'
-                }else if (this.form.region == 5) {
-                    this.newRow.identity = '老师'
-                }else if (this.form.region == 0) {
-                    this.newRow.identity = '学生'
-                }else{
-                    this.newRow.identity = '其他'
+                if (this.form.region == '') {
+                    _this.$message.error('修改失败,所选内容不能为空')
+                    return;                    
                 }
+
+                axios.post('/user/change',{
+                    id: _this.newRow.id,
+                    role: _this.newRow.role
+                }).then((result) => {
+                    if (result.data.code == 0) {
+                        _this.$message('修改成功')       
+
+                    } else{
+                        _this.$message('修改失败,请刷新重试')
+                    }
+                })
+                .catch((err) => {
+                    console.log(err)
+                    _this.$message.error('修改出现问题,请联系管理员')
+                })
+
+                if (_this.form.region == 20) {                      
+                    _this.newRow.identity = '系统管理员'   
+                    console.log(_this.newRow.identity)          
+                }else if (_this.form.region == 10) {
+                    _this.newRow.identity = '图书管理员'
+                }else if (_this.form.region == 5) {
+                    _this.newRow.identity = '老师'
+                }else if (_this.form.region == 0) {
+                    _this.newRow.identity = '学生'
+                }else{
+                    _this.newRow.identity = '其他'
+                }           
             },
             getDelRow(index, rows){
                 this.dialogVisible = true
@@ -208,6 +220,50 @@
                     FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'book-manage.xlsx')
                 } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
                 return wbout
+            },
+            getSearchRole(value){
+                this.searchRole = value
+            },
+            searchUser() {
+                const _this = this
+                let options = {}
+                // _this.tableData = []
+
+                if (_this.inputSearch == '' && _this.selectSearch == '') {
+                    _this.$message.error('请输入要搜索的名字或选择要搜索的分类')
+                    return;
+                }else if(_this.inputSearch == '') {
+                    options = {
+                        'role': _this.searchRole
+                    }
+                }else if(_this.selectSearch == '') {
+                    options = {
+                        'name': _this.inputSearch,
+                    }
+                }else {
+                    options = {
+                        'name': _this.inputSearch,
+                        'role': _this.searchRole
+                    }
+                }
+                axios.post('/user/search', options)
+                    .then((results) => {
+                        _this.tableData = results.data
+                        for (const key of _this.tableData) {
+                            if (key.role == 20) {
+                                key.identity = '系统管理员'
+                            }else if(key.role == 10) {
+                                key.identity = '图书管理员'                        
+                            }else if(key.role == 5) {
+                                key.identity = '老师'                        
+                            }else if(key.role == 0) {
+                                key.identity = '学生'                     
+                            }else {
+                                key.identity = '其他'                     
+                            }
+                        }
+                        this.$message('搜索成功')
+                    })
             },
         }
     };

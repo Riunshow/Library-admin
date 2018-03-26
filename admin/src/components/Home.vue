@@ -1,7 +1,7 @@
 <template>
   <div id="home">
     <div class="app-header">
-      <div class="title">图书管后台管理系统</div>
+      <div class="title">图书馆后台管理系统</div>
       <div class="welcome">欢迎你,
         <el-dropdown @command="logout">
           <span class="el-dropdown-link">

@@ -29,10 +29,10 @@
     <div class="user-wrap">
         <div class="search-place">
             <el-input placeholder="请输入书名" v-model="inputSearch" clearable></el-input>
-            <el-select v-model="selectSearch" placeholder="请选择" filterable>
+            <el-select v-model="selectSearch" placeholder="请选择" filterable @change='getSearchRole'>
                 <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
-            <el-button class="searchBtn">搜索</el-button>
+            <el-button class="searchBtn" @click="searchBook">搜索</el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
         </div>
@@ -82,6 +82,7 @@
 </template>
 
 <script>
+    import axios from 'axios'
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
     export default {
@@ -89,22 +90,7 @@
             return {
                 inputSearch: '',
                 selectSearch: '',
-                options: [{
-                    value: '1',
-                    label: '计算机'
-                },{
-                    value: '2',
-                    label: '语言'
-                },{
-                    value: '3',
-                    label: '艺术'
-                },{
-                    value: '4',
-                    label: '视觉'
-                },{
-                    value: '5',
-                    label: '设计'
-                }],
+                options: [],
                 dialogTableVisible: false,
                 dialogFormVisible: false,
                 dialogVisible: false,
@@ -118,73 +104,91 @@
                 },
                 newRow: {},
                 formLabelWidth: '120px',
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '梁启源1',
-                    value: '1'
-                }, {
-                    date: '2016-05-04',
-                    name: '梁启源2',
-                    value: '2'
-                }, {
-                    date: '2016-05-01',
-                    name: '梁启源3',
-                    value: '3'
-                }, {
-                    date: '2016-05-03',
-                    name: '梁启源4',
-                    value: '4'
-                }, {
-                    date: '2016-05-03',
-                    name: '梁启源5',
-                    value: '5'
-                }],
+                tableData: [],
                 tableColumns: [
+                    { label: 'id', prop: 'id'},                    
                     { label: '入库日期', prop: 'date'},
                     { label: '书名', prop: 'name'},
                     { label: '分类', prop: 'category'}
                 ],
                 delIndex: '',
-                delRows: ''
+                delRows: '',
+                searchCate: '',
             };
         },
         mounted() {
+            this.getCategory()            
             this.getRoleToWord()
         },
         methods: {
+            getCategory() {
+                const _this = this                
+                axios.get('/book/category')
+                    .then(results => {
+                        _this.options = results.data
+                    })
+            },
             getRoleToWord() {
-                for (const key of this.tableData) {
-                    if (key.value == 1) {
-                        key.category = '计算机'
-                    }else if(key.value == 2) {
-                        key.category = '语言'                        
-                    }else if(key.value == 3) {
-                        key.category = '艺术'                        
-                    }else if(key.value == 4) {
-                        key.category = '视觉'                     
-                    }else if(key.value == 5){
-                        key.category = '设计'                     
-                    }
-                }
+                const _this = this
+                axios.get('/book/manage')
+                    .then(results => {
+                        _this.tableData = results.data
+                    }).then(() => {
+                        for (const key of _this.tableData) {
+                            if (key.value == 1) {
+                                key.category = '计算机'
+                            }else if(key.value == 2) {
+                                key.category = '语言'                        
+                            }else if(key.value == 3) {
+                                key.category = '艺术'                        
+                            }else if(key.value == 4) {
+                                key.category = '视觉'                     
+                            }else if(key.value == 5){
+                                key.category = '设计'                     
+                            }
+                        }
+                    })
             },
             clickChangeRole(row) {
                 this.newRow = row                
                 this.dialogFormVisible = true
             },
             getChangeRole() {
-                this.dialogFormVisible = false;
+                const _this = this
+                _this.dialogFormVisible = false;
+                _this.newRow.value = this.form.region
 
-                this.newRow.value = this.form.region
-                if (this.form.region == 1) {
-                    this.newRow.category = '计算机'
-                }else if (this.form.region == 2) {
-                    this.newRow.category = '语言'
-                }else if (this.form.region == 3) {
-                    this.newRow.category = '艺术'
-                }else if (this.form.region == 4) {
-                    this.newRow.category = '视觉'
-                }else if(this.form.region == 5) {
-                    this.newRow.category = '设计'
+                if (_this.form.region == '') {
+                    _this.$message.error('修改失败,所选内容不能为空')
+                    return;                    
+                }
+
+                axios.post('/book/change',{
+                    id: _this.newRow.id,
+                    category: _this.newRow.value
+                }).then((result) => {
+                    if (result.data.code == 0) {
+                        _this.$message('修改成功')       
+
+                    } else{
+                        _this.$message('修改失败,请刷新重试')
+                    }
+                })
+                .catch((err) => {
+                    console.log(err)
+                    _this.$message.error('修改出现问题,请联系管理员')
+                })
+
+                if (_this.form.region == 1) {
+                    _this.newRow.category = '计算机'
+                }else if (_this.form.region == 2) {
+                    _this.newRow.category = '语言'
+                }else if (_this.form.region == 3) {
+                    _this.newRow.category = '艺术'
+                }else if (_this.form.region == 4) {
+                    _this.newRow.category = '视觉'
+                }else if(_this.form.region == 5) {
+                    _this.newRow.category = '设计'
                 }
             },
             getDelRow(index, rows){
@@ -205,6 +209,50 @@
                     FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'book-manage.xlsx')
                 } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
                 return wbout
+            },
+            getSearchRole(value){
+                this.searchCate = value
+            },
+            searchBook() {
+                const _this = this
+                let options = {}
+                // _this.tableData = []
+
+                if (_this.inputSearch == '' && _this.selectSearch == '') {
+                    _this.$message.error('请输入要搜索的名字或选择要搜索的分类')
+                    return;
+                }else if(_this.inputSearch == '') {
+                    options = {
+                        'value': _this.searchCate
+                    }
+                }else if(_this.selectSearch == '') {
+                    options = {
+                        'name': _this.inputSearch,
+                    }
+                }else {
+                    options = {
+                        'name': _this.inputSearch,
+                        'value': _this.searchCate
+                    }
+                }
+                axios.post('/book/search', options)
+                    .then(results => {
+                        _this.tableData = results.data
+                        for (const key of _this.tableData) {
+                            if (key.value == 1) {
+                                key.category = '计算机'
+                            }else if(key.value == 2) {
+                                key.category = '语言'                        
+                            }else if(key.value == 3) {
+                                key.category = '艺术'                        
+                            }else if(key.value == 4) {
+                                key.category = '视觉'                     
+                            }else if(key.value == 5){
+                                key.category = '设计'                     
+                            }
+                        }
+                        _this.$message('搜索成功')
+                    })
             },
         }
     };
