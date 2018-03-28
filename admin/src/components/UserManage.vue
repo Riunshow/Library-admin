@@ -103,6 +103,7 @@
                 newRow: {},
                 formLabelWidth: '120px',
                 tableData: [],
+                nowTableData: [],
                 tableColumns: [
                     { label: 'id', prop: 'id'},                    
                     { label: '日期', prop: 'date'},
@@ -133,6 +134,7 @@
                 axios.get('/user')
                     .then(results => {
                         _this.tableData = results.data
+                        _this.nowTableData = _this.tableData
                     })
                     .then(() => {
                         for (const key of _this.tableData) {
@@ -228,12 +230,11 @@
             },
             getSearchRole(value){
                 this.searchRole = value
-                const nowTableData = this.tableData
                 this.tableData = []
                 if (value == 100) {
-                    this.getRoleToWord()
+                    this.tableData = this.nowTableData
                 } else {
-                    for (const iter of nowTableData) {
+                    for (const iter of this.nowTableData) {
                         if (iter.role == this.searchRole) {
                             this.tableData.push(iter)
                         }
@@ -246,23 +247,12 @@
                 // _this.tableData = []
 
                 if (_this.inputSearch == '' && _this.selectSearch == '') {
-                    _this.$message.error('请输入要搜索的名字或选择要搜索的分类')
+                    _this.$message.error('请输入要搜索的名字')
                     return;
-                }else if(_this.inputSearch == '') {
-                    options = {
-                        'role': _this.searchRole
-                    }
-                }else if(_this.selectSearch == '') {
-                    options = {
-                        'name': _this.inputSearch,
-                    }
-                }else {
-                    options = {
-                        'name': _this.inputSearch,
-                        'role': _this.searchRole
-                    }
                 }
-                axios.post('/user/search', options)
+                axios.post('/user/search', {
+                    'name': _this.inputSearch,
+                })
                     .then((results) => {
                         _this.tableData = results.data
                         for (const key of _this.tableData) {

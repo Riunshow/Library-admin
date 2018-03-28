@@ -104,6 +104,7 @@
                 newRow: {},
                 formLabelWidth: '120px',
                 tableData: [],
+                nowTableData: [],
                 tableColumns: [
                     { label: 'id', prop: 'id'},                    
                     { label: '入库日期', prop: 'date'},
@@ -132,6 +133,7 @@
                 axios.get('/book')
                     .then(results => {
                         _this.tableData = results.data
+                        _this.nowTableData = _this.tableData     
                     }).then(() => {
                         for (const key of _this.tableData) {
                             if (key.value == 1) {
@@ -219,12 +221,11 @@
             },
             getSearchRole(value){
                 this.searchCate = value
-                const nowTableData = this.tableData
                 this.tableData = []
                 if (value == 100) {
-                    this.getCateToWord()
+                    this.tableData = this.nowTableData                    
                 } else {
-                    for (const iter of nowTableData) {
+                    for (const iter of this.nowTableData) {
                         if (iter.value == this.searchCate) {
                             this.tableData.push(iter)
                         }
@@ -236,24 +237,13 @@
                 let options = {}
                 // _this.tableData = []
 
-                if (_this.inputSearch == '' && _this.selectSearch == '') {
-                    _this.$message.error('请输入要搜索的名字或选择要搜索的分类')
+                if (_this.inputSearch == '') {
+                    _this.$message.error('请输入要搜索的名字')
                     return;
-                }else if(_this.inputSearch == '') {
-                    options = {
-                        'value': _this.searchCate
-                    }
-                }else if(_this.selectSearch == '') {
-                    options = {
-                        'name': _this.inputSearch,
-                    }
-                }else {
-                    options = {
-                        'name': _this.inputSearch,
-                        'value': _this.searchCate
-                    }
                 }
-                axios.post('/book/search', options)
+                axios.post('/book/search', {
+                    'name': _this.inputSearch,
+                })
                     .then(results => {
                         _this.tableData = results.data
                         for (const key of _this.tableData) {
