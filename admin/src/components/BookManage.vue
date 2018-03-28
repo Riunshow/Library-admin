@@ -6,7 +6,7 @@
     float: left;
     width: 30%;
 }
-.el-select {
+.selectCate {
     float: right;
 }
 .searchBtn {
@@ -31,7 +31,7 @@
             <el-button class="searchBtn" @click="searchBook">搜索</el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
-            <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole'>
+            <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole' class="selectCate">
                 <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
         </div>
