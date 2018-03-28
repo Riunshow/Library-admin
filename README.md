@@ -1,7 +1,7 @@
 # 图书馆
 ## admin
 
-图书馆后台管理界面, 技术为 vue + vue-router + vuex + sessionStorage, 采用<del> vuex </del>sessionStorage 存储用户状态,vuex 存储标签的添加与删除
+图书馆后台管理界面, 技术为 vue + vue-router + vuex + sessionStorage, 采用<del> vuex </del>sessionStorage 存储用户状态,vuex 存储标签的添加与删除, 采用 mock.js 模拟数据
 
 ## mock-server
 
