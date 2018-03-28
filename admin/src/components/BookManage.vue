@@ -7,8 +7,7 @@
     width: 30%;
 }
 .el-select {
-    margin-left: 20px;
-    float: left;
+    float: right;
 }
 .searchBtn {
     margin-left: 30px;
@@ -29,12 +28,12 @@
     <div class="user-wrap">
         <div class="search-place">
             <el-input placeholder="请输入书名" v-model="inputSearch" clearable></el-input>
-            <el-select v-model="selectSearch" placeholder="请选择" filterable @change='getSearchRole'>
-                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
-            </el-select>
             <el-button class="searchBtn" @click="searchBook">搜索</el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
+            <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole'>
+                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+            </el-select>
         </div>
         <el-table :data="tableData" id="out-table">
             <template v-for="column in tableColumns">
@@ -118,7 +117,7 @@
         },
         mounted() {
             this.getCategory()            
-            this.getRoleToWord()
+            this.getCateToWord()
         },
         methods: {
             getCategory() {
@@ -128,9 +127,9 @@
                         _this.options = results.data
                     })
             },
-            getRoleToWord() {
+            getCateToWord() {
                 const _this = this
-                axios.get('/book/manage')
+                axios.get('/book')
                     .then(results => {
                         _this.tableData = results.data
                     }).then(() => {
@@ -163,8 +162,7 @@
                     return;                    
                 }
 
-                axios.post('/book/change',{
-                    id: _this.newRow.id,
+                axios.put('/book/' + _this.newRow.id,{
                     category: _this.newRow.value
                 }).then((result) => {
                     if (result.data.code == 0) {
@@ -204,7 +202,7 @@
                 const options = {
                     'id': this.delRows.id
                 }
-                axios.post('/book/del',options)
+                axios.delete('/book/'+ this.delRows.id,options)
                     .then(() => {
                         _this.$message('删除成功')
                     })
@@ -221,6 +219,17 @@
             },
             getSearchRole(value){
                 this.searchCate = value
+                const nowTableData = this.tableData
+                this.tableData = []
+                if (value == 100) {
+                    this.getCateToWord()
+                } else {
+                    for (const iter of nowTableData) {
+                        if (iter.value == this.searchCate) {
+                            this.tableData.push(iter)
+                        }
+                    }
+                }
             },
             searchBook() {
                 const _this = this

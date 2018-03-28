@@ -21,15 +21,14 @@
 				}]
 			};
 		},
-		created () {
+		mounted() {
 			this.roleToWord()
 		},
 		methods: {
 			roleToWord() {
 				const _this = this
 				if (_this.tableData[0].role == 20) {                      
-                    _this.tableData[0].identity = '系统管理员'   
-                    console.log(_this.newRow.identity)          
+                    _this.tableData[0].identity = '系统管理员'           
                 }else if (_this.tableData[0].role == 10) {
                     _this.tableData[0].identity = '图书管理员'
                 }

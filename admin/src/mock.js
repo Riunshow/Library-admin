@@ -52,6 +52,9 @@ const userManage = () => {
 
 const allManager = () => {
     const manageCategory = [{
+        value: '100',
+        label: '全部'
+    }, {
         value: '20',
         label: '系统管理员'
     }, {
@@ -90,7 +93,8 @@ const changeRole = (opt) => {
 
     // code = 0 为成功
     const result = {
-        code: Random.pick(randomArray),
+        // code: Random.pick(randomArray),
+        code: 0,
         msg: 'change success'
     }
 
@@ -125,11 +129,13 @@ const delUser = (opt) => {
 
 Mock.mock('/user/login', 'post', loginUser);
 Mock.mock('/user/logout', 'post', logout);
-Mock.mock('/user/manage', 'get', userManage);
 Mock.mock('/user/category', 'get', allManager);
-Mock.mock('/user/change', 'post', changeRole);
+
+Mock.mock('/user', 'get', userManage);
+Mock.mock('/user/:userid', 'put', changeRole);
+Mock.mock('/user/:userid', 'del', delUser);
+
 Mock.mock('/user/search', 'post', searchUser);
-Mock.mock('/user/del', 'post', delUser);
 
 // **********************************************************
 //  图书
@@ -158,6 +164,9 @@ const searchBook = (opt) => {
 
 const allBookCate = () => {
     const bookCategory = [{
+        value: '100',
+        label: '全部'
+    }, {
         value: '1',
         label: '计算机'
     }, {
@@ -231,6 +240,13 @@ const delBook = (opt) => {
 
 Mock.mock('/book/search', 'post', searchBook);
 Mock.mock('/book/category', 'get', allBookCate);
-Mock.mock('/book/manage', 'get', bookManage);
-Mock.mock('/book/change', 'post', changeCate);
-Mock.mock('/book/del', 'post', delBook);
+
+// *******
+// 添加分类
+Mock.mock('/book/category', 'post', allBookCate);
+Mock.mock('/book', 'post', allBookCate);
+// *******
+
+Mock.mock('/book', 'get', bookManage);
+Mock.mock('/book/:bookid', 'put', changeCate);
+Mock.mock('/book/:bookid', 'del', delBook);

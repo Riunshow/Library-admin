@@ -7,8 +7,7 @@
     width: 30%;
 }
 .el-select {
-    margin-left: 20px;
-    float: left;
+    float: right;
 }
 .searchBtn {
     margin-left: 30px;
@@ -29,12 +28,12 @@
     <div class="user-wrap">
         <div class="search-place">
             <el-input placeholder="请输入姓名" v-model="inputSearch" clearable></el-input>
-            <el-select v-model="selectSearch" placeholder="请选择" filterable @change='getSearchRole'>
-                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value" ></el-option>
-            </el-select>
             <el-button class="searchBtn" @click="searchUser">搜索</el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
+            <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole'>
+                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value" ></el-option>
+            </el-select>
         </div>
         <el-table :data="tableData" id="out-table">
             <template v-for="column in tableColumns">
@@ -131,7 +130,7 @@
             },
             getRoleToWord() {
                 const _this = this
-                axios.get('/user/manage')
+                axios.get('/user')
                     .then(results => {
                         _this.tableData = results.data
                     })
@@ -173,8 +172,7 @@
                     return;                    
                 }
 
-                axios.post('/user/change',{
-                    id: _this.newRow.id,
+                axios.put('/user/' + _this.newRow.id,{
                     role: _this.newRow.role
                 }).then((result) => {
                     if (result.data.code == 0) {
@@ -212,10 +210,8 @@
                 this.tableData.splice(this.delIndex, 1);
 
                 const _this = this
-                const options = {
-                    'id': this.delRows.id
-                }
-                axios.post('/user/del',options)
+
+                axios.delete('/user/' + this.delRows.id)
                     .then(() => {
                         _this.$message('删除成功')
                     })
@@ -232,6 +228,17 @@
             },
             getSearchRole(value){
                 this.searchRole = value
+                const nowTableData = this.tableData
+                this.tableData = []
+                if (value == 100) {
+                    this.getRoleToWord()
+                } else {
+                    for (const iter of nowTableData) {
+                        if (iter.role == this.searchRole) {
+                            this.tableData.push(iter)
+                        }
+                    }
+                }
             },
             searchUser() {
                 const _this = this
