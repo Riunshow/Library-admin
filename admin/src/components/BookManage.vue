@@ -109,7 +109,7 @@
                     { label: 'id', prop: 'id'},                    
                     { label: '入库日期', prop: 'date'},
                     { label: '书名', prop: 'name'},
-                    { label: '分类', prop: 'category'}
+                    { label: '分类', prop: 'cate'}
                 ],
                 delIndex: '',
                 delRows: '',
@@ -135,19 +135,19 @@
                         _this.tableData = results.data
                         _this.nowTableData = _this.tableData     
                     }).then(() => {
-                        for (const key of _this.tableData) {
-                            if (key.value == 1) {
-                                key.category = '计算机'
-                            }else if(key.value == 2) {
-                                key.category = '语言'                        
-                            }else if(key.value == 3) {
-                                key.category = '艺术'                        
-                            }else if(key.value == 4) {
-                                key.category = '视觉'                     
-                            }else if(key.value == 5){
-                                key.category = '设计'                     
-                            }
-                        }
+                        // for (const key of _this.tableData) {
+                        //     if (key.value == 1) {
+                        //         key.category = '计算机'
+                        //     }else if(key.value == 2) {
+                        //         key.category = '语言'                        
+                        //     }else if(key.value == 3) {
+                        //         key.category = '艺术'                        
+                        //     }else if(key.value == 4) {
+                        //         key.category = '视觉'                     
+                        //     }else if(key.value == 5){
+                        //         key.category = '设计'                     
+                        //     }
+                        // }
                     })
             },
             clickChangeRole(row) {
@@ -201,10 +201,8 @@
                 this.tableData.splice(this.delIndex, 1);
 
                 const _this = this
-                const options = {
-                    'id': this.delRows.id
-                }
-                axios.delete('/book/'+ this.delRows.id,options)
+
+                axios.delete('/book/'+ this.delRows.id)
                     .then(() => {
                         _this.$message('删除成功')
                     })
@@ -246,19 +244,19 @@
                 })
                     .then(results => {
                         _this.tableData = results.data
-                        for (const key of _this.tableData) {
-                            if (key.value == 1) {
-                                key.category = '计算机'
-                            }else if(key.value == 2) {
-                                key.category = '语言'                        
-                            }else if(key.value == 3) {
-                                key.category = '艺术'                        
-                            }else if(key.value == 4) {
-                                key.category = '视觉'                     
-                            }else if(key.value == 5){
-                                key.category = '设计'                     
-                            }
-                        }
+                        // for (const key of _this.tableData) {
+                        //     if (key.value == 1) {
+                        //         key.category = '计算机'
+                        //     }else if(key.value == 2) {
+                        //         key.category = '语言'                        
+                        //     }else if(key.value == 3) {
+                        //         key.category = '艺术'                        
+                        //     }else if(key.value == 4) {
+                        //         key.category = '视觉'                     
+                        //     }else if(key.value == 5){
+                        //         key.category = '设计'                     
+                        //     }
+                        // }
                         _this.$message('搜索成功')
                     })
             },

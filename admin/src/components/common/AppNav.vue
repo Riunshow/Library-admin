@@ -1,5 +1,4 @@
 <!-- 左侧菜单导航栏组件 -->
-
 <template>
   <div class="app-nav-wrap">
     <el-menu :default-active="$route.path" class="el-menu-vertical-demo" router>
@@ -34,12 +33,16 @@
             name: '首页'
           },
           {
+            route: '/book',
+            name: '图书管理'
+          },
+          {
             route: '/user',
             name: '用户管理',
           },
           {
-            route: '/book',
-            name: '图书管理'
+            route: '/group',
+            name: '分组管理',
           },
           {
             route: '/personal',

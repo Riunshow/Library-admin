@@ -175,13 +175,14 @@
       display: flex;
       flex-flow: row;
       .app-nav {
-        flex: 0 0 300px;
+        flex: 0 0 250px;
         background: #eff2f7;
       }
       .app-wrap {
         flex: 1;
         padding: 10px 20px;
         overflow: auto;
+        min-width: 900px;
         .content-wrap {
           height: 90%;
           border: 1px solid #d1dbe5;

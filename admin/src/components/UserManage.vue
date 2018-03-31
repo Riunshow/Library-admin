@@ -35,7 +35,7 @@
                 <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value" ></el-option>
             </el-select>
         </div>
-        <el-table :data="tableData" id="out-table">
+        <el-table :data="tableData" id="out-table" v-loading="loading">
             <template v-for="column in tableColumns">
                 <el-table-column
                     :label="column.label"
@@ -95,6 +95,7 @@
                 form: {
                     name: '',
                     region: '',
+                    role:'',
                     delivery: false,
                     type: [],
                     resource: '',
@@ -108,11 +109,12 @@
                     { label: 'id', prop: 'id'},                    
                     { label: '日期', prop: 'date'},
                     { label: '姓名', prop: 'name'},
-                    { label: '身份', prop: 'identity'}
+                    { label: '身份', prop: 'role'}
                 ],
                 delIndex: '',
                 delRows: '',
                 searchRole: '',
+                loading: true
             };
         },
         created(){
@@ -137,19 +139,20 @@
                         _this.nowTableData = _this.tableData
                     })
                     .then(() => {
-                        for (const key of _this.tableData) {
-                            if (key.role == 20) {
-                                key.identity = '系统管理员'
-                            }else if(key.role == 10) {
-                                key.identity = '图书管理员'                        
-                            }else if(key.role == 5) {
-                                key.identity = '老师'                        
-                            }else if(key.role == 0) {
-                                key.identity = '学生'                     
-                            }else {
-                                key.identity = '其他'                     
-                            }
-                        }
+                        // for (const key of _this.tableData) {
+                        //     if (key.role == 20) {
+                        //         key.identity = '系统管理员'
+                        //     }else if(key.role == 10) {
+                        //         key.identity = '图书管理员'                        
+                        //     }else if(key.role == 5) {
+                        //         key.identity = '老师'                        
+                        //     }else if(key.role == 0) {
+                        //         key.identity = '学生'                     
+                        //     }else {
+                        //         key.identity = '其他'                     
+                        //     }
+                        // }
+                        this.loading = false
                     })
                 
             },
@@ -255,19 +258,19 @@
                 })
                     .then((results) => {
                         _this.tableData = results.data
-                        for (const key of _this.tableData) {
-                            if (key.role == 20) {
-                                key.identity = '系统管理员'
-                            }else if(key.role == 10) {
-                                key.identity = '图书管理员'                        
-                            }else if(key.role == 5) {
-                                key.identity = '老师'                        
-                            }else if(key.role == 0) {
-                                key.identity = '学生'                     
-                            }else {
-                                key.identity = '其他'                     
-                            }
-                        }
+                        // for (const key of _this.tableData) {
+                        //     if (key.role == 20) {
+                        //         key.identity = '系统管理员'
+                        //     }else if(key.role == 10) {
+                        //         key.identity = '图书管理员'                        
+                        //     }else if(key.role == 5) {
+                        //         key.identity = '老师'                        
+                        //     }else if(key.role == 0) {
+                        //         key.identity = '学生'                     
+                        //     }else {
+                        //         key.identity = '其他'                     
+                        //     }
+                        // }
                         this.$message('搜索成功')
                     })
             },

@@ -32,6 +32,8 @@
     height: 100%;
     margin: 0;
     padding: 0;
+    min-width: 1200px;
+    min-height: 768px;
   }
   #app {
     height: 100%;

@@ -37,7 +37,9 @@ const logout = () => {
 
 const userManage = () => {
     let users = []
-    let randomArray = [0, 5, 10, 20]
+        // let randomArray = [0, 5, 10, 20]
+    let randomArray = ['系统管理员', '图书管理员', '老师', '学生', '其他']
+
     for (let i = 0; i < 5; i++) {
         let newUser = {
             date: Random.date(),
@@ -53,22 +55,28 @@ const userManage = () => {
 const allManager = () => {
     const manageCategory = [{
         value: '100',
-        label: '全部'
+        label: '全部',
+        id: Random.string(5),
     }, {
         value: '20',
-        label: '系统管理员'
+        label: '系统管理员',
+        id: Random.string(5),
     }, {
         value: '10',
-        label: '图书管理员'
+        label: '图书管理员',
+        id: Random.string(5),
     }, {
         value: '5',
-        label: '老师'
+        label: '老师',
+        id: Random.string(5),
     }, {
         value: '0',
-        label: '学生'
+        label: '学生',
+        id: Random.string(5),
     }, {
         value: '-1',
-        label: '其他'
+        label: '其他',
+        id: Random.string(5),
     }]
 
     return manageCategory;
@@ -106,7 +114,7 @@ const searchUser = (opt) => {
     console.log(options)
 
     let users = []
-    let randomArray = [0, 5, 10, 20]
+    let randomArray = ['系统管理员', '图书管理员', '老师', '学生', '其他']
     for (let i = 0; i < 5; i++) {
         let newUser = {
             date: Random.date(),
@@ -126,16 +134,20 @@ const delUser = (opt) => {
     const options = JSON.parse(opt.body)
     console.log(options)
 }
+const addUserCate = (opt) => {
+    const options = JSON.parse(opt.body)
+    console.log(options)
+}
 
 Mock.mock('/user/login', 'post', loginUser);
 Mock.mock('/user/logout', 'post', logout);
 Mock.mock('/user/category', 'get', allManager);
-
 Mock.mock('/user', 'get', userManage);
 Mock.mock('/user/:userid', 'put', changeRole);
 Mock.mock('/user/:userid', 'del', delUser);
-
 Mock.mock('/user/search', 'post', searchUser);
+
+Mock.mock('/user/category/add', 'post', addUserCate)
 
 // **********************************************************
 //  图书
@@ -165,22 +177,28 @@ const searchBook = (opt) => {
 const allBookCate = () => {
     const bookCategory = [{
         value: '100',
-        label: '全部'
+        label: '全部',
+        id: Random.string(5),
     }, {
         value: '1',
-        label: '计算机'
+        label: '计算机',
+        id: Random.string(5),
     }, {
         value: '2',
-        label: '语言'
+        label: '语言',
+        id: Random.string(5),
     }, {
         value: '3',
-        label: '艺术'
+        label: '艺术',
+        id: Random.string(5),
     }, {
         value: '4',
-        label: '视觉'
+        label: '视觉',
+        id: Random.string(5),
     }, {
         value: '5',
-        label: '设计'
+        label: '设计',
+        id: Random.string(5),
     }]
 
     return bookCategory;
@@ -188,12 +206,13 @@ const allBookCate = () => {
 
 const bookManage = () => {
     let books = []
-    let randomArray = [1, 2, 3, 4, 5]
+        // let randomArray = [1, 2, 3, 4, 5]
+    let randomArray = ['计算机', '语言', '艺术', '视觉', '设计']
     for (let i = 0; i < 5; i++) {
         let newBook = {
             date: Random.date(),
             name: Random.cname(),
-            value: Random.pick(randomArray),
+            cate: Random.pick(randomArray),
             id: Random.string(7),
         }
         books.push(newBook)
@@ -238,6 +257,11 @@ const delBook = (opt) => {
     console.log(options)
 }
 
+const addBookCate = (opt) => {
+    const options = JSON.parse(opt.body)
+    console.log(options)
+}
+
 Mock.mock('/book/search', 'post', searchBook);
 Mock.mock('/book/category', 'get', allBookCate);
 
@@ -250,3 +274,5 @@ Mock.mock('/book', 'post', allBookCate);
 Mock.mock('/book', 'get', bookManage);
 Mock.mock('/book/:bookid', 'put', changeCate);
 Mock.mock('/book/:bookid', 'del', delBook);
+
+Mock.mock('/book/category/add', 'post', addBookCate)

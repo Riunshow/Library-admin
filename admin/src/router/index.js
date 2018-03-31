@@ -8,6 +8,7 @@ import FirstPage from '@/components/FirstPage'
 import Template from '@/components/Template'
 import Login from '@/components/Login'
 import UserManage from '@/components/UserManage'
+import GroupManage from '@/components/GroupManage'
 import DetailInfo from '@/components/DetailInfo'
 import Personal from '@/components/PersonalCenter'
 import BookManage from '@/components/BookManage'
@@ -40,6 +41,15 @@ const router = new Router({
                     path: 'user',
                     name: '用户管理',
                     component: UserManage,
+                    meta: {
+                        requireAuth: true,
+                        adminAuth: true
+                    },
+                },
+                {
+                    path: 'group',
+                    name: '分组管理',
+                    component: GroupManage,
                     meta: {
                         requireAuth: true,
                         adminAuth: true
