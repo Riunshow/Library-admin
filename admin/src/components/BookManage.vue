@@ -19,8 +19,8 @@
 .el-icon-arrow-down {
     font-size: 12px;
 }
-.options{
-    margin-right: 30px;
+.optionsClick{
+    margin: 10px;
 }
 </style>
 <!-- 用户管理组件 -->
@@ -31,38 +31,35 @@
             <el-button class="searchBtn" @click="searchBook">搜索</el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
-            <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole' class="selectCate">
-                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+			<el-button type="success" @click="resetAll" class="searchBtn">重置</el-button>
+            
+            <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchCate' class="selectCate">
+                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.label"></el-option>
             </el-select>
         </div>
         <el-table :data="tableData" id="out-table">
             <template v-for="column in tableColumns">
-                <el-table-column
-                    :label="column.label"
-                    :prop="column.prop">
-                </el-table-column>
+                <el-table-column :label="column.label" :prop="column.prop"></el-table-column>
             </template>
             <el-table-column
                 label="操作"
                 prop="">
                 <template scope="scope">
+                    <!-- 详细信息 -->
+                    <el-button type="text" @click="getUserInfo(scope.row)" >详细信息</el-button>                    
                     <!-- 修改分类 -->
-                    <el-button type="text" @click="clickChangeRole(scope.row)" class="options">修改分类</el-button>
+                    <el-button type="text" @click="clickChangeCate(scope.row)" class="optionsClick">修改分类</el-button>
                     <el-dialog title="分类管理" :visible.sync="dialogFormVisible">
                         <el-form :model="form">
                             <el-form-item label="分类选择" :label-width="formLabelWidth">
                             <el-select v-model="form.region" placeholder="请选择分类">
-                                <el-option label="计算机" value="1"></el-option>
-                                <el-option label="语言" value="2"></el-option>
-                                <el-option label="艺术" value="3"></el-option>
-                                <el-option label="视觉" value="4"></el-option>
-                                <el-option label="设计" value="5"></el-option>
+                                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.label"></el-option>
                             </el-select>
                             </el-form-item>
                         </el-form>
                         <div slot="footer" class="dialog-footer">
                             <el-button @click="dialogFormVisible = false">取 消</el-button>
-                            <el-button type="primary" @click="getChangeRole">确 定</el-button>
+                            <el-button type="primary" @click="getChangeCate">确 定</el-button>
                         </div>
                     </el-dialog>
                     <!-- 删除 -->
@@ -118,7 +115,7 @@
         },
         mounted() {
             this.getCategory()            
-            this.getCateToWord()
+            this.getAllBook()
         },
         methods: {
             getCategory() {
@@ -128,40 +125,27 @@
                         _this.options = results.data
                     })
             },
-            getCateToWord() {
+            getAllBook() {
                 const _this = this
                 axios.get('/book')
                     .then(results => {
                         _this.tableData = results.data
                         _this.nowTableData = _this.tableData     
-                    }).then(() => {
-                        // for (const key of _this.tableData) {
-                        //     if (key.value == 1) {
-                        //         key.category = '计算机'
-                        //     }else if(key.value == 2) {
-                        //         key.category = '语言'                        
-                        //     }else if(key.value == 3) {
-                        //         key.category = '艺术'                        
-                        //     }else if(key.value == 4) {
-                        //         key.category = '视觉'                     
-                        //     }else if(key.value == 5){
-                        //         key.category = '设计'                     
-                        //     }
-                        // }
                     })
             },
-            clickChangeRole(row) {
+            getUserInfo(row){
+                console.log(row);
+            },
+            clickChangeCate(row) {
                 this.newRow = row                
                 this.dialogFormVisible = true
             },
-            getChangeRole() {
+            getChangeCate() {
                 const _this = this
                 _this.dialogFormVisible = false;
-                _this.newRow.value = this.form.region
 
                 if (_this.form.region == '') {
                     _this.$message.error('修改失败,所选内容不能为空')
-                    return;                    
                 }
 
                 axios.put('/book/' + _this.newRow.id,{
@@ -169,7 +153,8 @@
                 }).then((result) => {
                     if (result.data.code == 0) {
                         _this.$message('修改成功')       
-
+                        _this.newRow.cate = _this.form.region
+                        console.log(_this.newRow);
                     } else{
                         _this.$message('修改失败,请刷新重试')
                     }
@@ -179,17 +164,7 @@
                     _this.$message.error('修改出现问题,请联系管理员')
                 })
 
-                if (_this.form.region == 1) {
-                    _this.newRow.category = '计算机'
-                }else if (_this.form.region == 2) {
-                    _this.newRow.category = '语言'
-                }else if (_this.form.region == 3) {
-                    _this.newRow.category = '艺术'
-                }else if (_this.form.region == 4) {
-                    _this.newRow.category = '视觉'
-                }else if(_this.form.region == 5) {
-                    _this.newRow.category = '设计'
-                }
+                
             },
             getDelRow(index, rows){
                 this.dialogVisible = true
@@ -217,14 +192,14 @@
                 } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
                 return wbout
             },
-            getSearchRole(value){
+            getSearchCate(value){
                 this.searchCate = value
                 this.tableData = []
-                if (value == 100) {
+                if (value == '全部') {
                     this.tableData = this.nowTableData                    
                 } else {
                     for (const iter of this.nowTableData) {
-                        if (iter.value == this.searchCate) {
+                        if (iter.cate == this.searchCate) {
                             this.tableData.push(iter)
                         }
                     }
@@ -237,28 +212,22 @@
 
                 if (_this.inputSearch == '') {
                     _this.$message.error('请输入要搜索的名字')
-                    return;
-                }
-                axios.post('/book/search', {
-                    'name': _this.inputSearch,
-                })
-                    .then(results => {
-                        _this.tableData = results.data
-                        // for (const key of _this.tableData) {
-                        //     if (key.value == 1) {
-                        //         key.category = '计算机'
-                        //     }else if(key.value == 2) {
-                        //         key.category = '语言'                        
-                        //     }else if(key.value == 3) {
-                        //         key.category = '艺术'                        
-                        //     }else if(key.value == 4) {
-                        //         key.category = '视觉'                     
-                        //     }else if(key.value == 5){
-                        //         key.category = '设计'                     
-                        //     }
-                        // }
-                        _this.$message('搜索成功')
+                }else {
+                    axios.post('/book/search', {
+                        'name': _this.inputSearch,
                     })
+                        .then((results) => {
+                            _this.$message('搜索成功')
+                            _this.tableData = results.data
+                            _this.selectSearch = ''
+                        })
+                }
+                
+            },
+            resetAll() {
+                this.inputSearch = ''
+                this.selectSearch = ''
+                this.getAllBook()    
             },
         }
     };

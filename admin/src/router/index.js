@@ -70,7 +70,16 @@ const router = new Router({
                     meta: {
                         requireAuth: true
                     },
-                }, {
+                },
+                {
+                    path: 'bookInfo/:id',
+                    name: '图书详情页',
+                    component: DetailInfo,
+                    meta: {
+                        requireAuth: true
+                    },
+                },
+                {
                     path: 'personal',
                     name: '个人中心',
                     component: Personal,

@@ -161,16 +161,15 @@ const searchBook = (opt) => {
     console.log(options)
 
     let books = []
-    let randomArray = [1, 2, 3, 4, 5]
-    for (let i = 0; i < 5; i++) {
-        let newBook = {
-            date: Random.date(),
-            name: Random.cname(),
-            value: Random.pick(randomArray),
-            id: Random.string(7),
-        }
-        books.push(newBook)
+        // let randomArray = [1, 2, 3, 4, 5]
+    let randomArray = ['计算机', '语言', '艺术', '视觉', '设计']
+    let newBook = {
+        date: Random.date(),
+        name: Random.cname(),
+        cate: Random.pick(randomArray),
+        id: Random.string(7),
     }
+    books.push(newBook)
     return books;
 }
 
@@ -276,3 +275,34 @@ Mock.mock('/book/:bookid', 'put', changeCate);
 Mock.mock('/book/:bookid', 'del', delBook);
 
 Mock.mock('/book/category/add', 'post', addBookCate)
+
+
+// ********************************8
+// 分组管理
+
+const searchUserCate = (opt) => {
+    const options = JSON.parse(opt.body)
+    let randomArray = ['系统管理员', '图书管理员', '老师', '学生', '其他']
+
+    const result = {
+        id: Random.string(7),
+        label: Random.pick(randomArray),
+    }
+
+    return result;
+}
+
+const searchBookCate = (opt) => {
+    const options = JSON.parse(opt.body)
+    let randomArray = ['计算机', '语言', '艺术', '视觉', '设计']
+
+    const result = {
+        id: Random.string(7),
+        label: Random.pick(randomArray),
+    }
+
+    return result;
+}
+
+Mock.mock('/user/category/search', 'post', searchUserCate)
+Mock.mock('/book/category/search', 'post', searchBookCate)

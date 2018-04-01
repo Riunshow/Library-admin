@@ -31,8 +31,9 @@
             <el-button class="searchBtn" @click="searchUser">搜索</el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
+            <el-button type="success" @click="resetAll" class="searchBtn">重置</el-button>
             <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole' class="selectRole">
-                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value" ></el-option>
+                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.label" ></el-option>
             </el-select>
         </div>
         <el-table :data="tableData" id="out-table" v-loading="loading">
@@ -52,11 +53,7 @@
                         <el-form :model="form">
                             <el-form-item label="权限选择" :label-width="formLabelWidth">
                             <el-select v-model="form.region" placeholder="请选择权限">
-                                <el-option label="系统管理员" value="20"></el-option>
-                                <el-option label="图书管理员" value="10"></el-option>
-                                <el-option label="老师" value="5"></el-option>
-                                <el-option label="学生" value="0"></el-option>
-                                <el-option label="其他" value="-1"></el-option>
+                                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.label" ></el-option>
                             </el-select>
                             </el-form-item>
                         </el-form>
@@ -119,7 +116,7 @@
         },
         created(){
             this.getCategory()
-            this.getRoleToWord()               
+            this.getAllUser()               
         },
         mounted() {
         },
@@ -131,30 +128,14 @@
                         _this.options = results.data
                     })
             },
-            getRoleToWord() {
+            getAllUser() {
                 const _this = this
                 axios.get('/user')
                     .then(results => {
                         _this.tableData = results.data
                         _this.nowTableData = _this.tableData
-                    })
-                    .then(() => {
-                        // for (const key of _this.tableData) {
-                        //     if (key.role == 20) {
-                        //         key.identity = '系统管理员'
-                        //     }else if(key.role == 10) {
-                        //         key.identity = '图书管理员'                        
-                        //     }else if(key.role == 5) {
-                        //         key.identity = '老师'                        
-                        //     }else if(key.role == 0) {
-                        //         key.identity = '学生'                     
-                        //     }else {
-                        //         key.identity = '其他'                     
-                        //     }
-                        // }
                         this.loading = false
                     })
-                
             },
             // onBtnDetailClick(row) {
             //     // 1. 用户详情存vuex
@@ -170,40 +151,29 @@
             getChangeRole() {
                 const _this = this
                 _this.dialogFormVisible = false;
-                _this.newRow.role = this.form.region
 
-                if (this.form.region == '') {
+                if (_this.form.region == '') {
                     _this.$message.error('修改失败,所选内容不能为空')
-                    return;                    
-                }
-
-                axios.put('/user/' + _this.newRow.id,{
-                    role: _this.newRow.role
-                }).then((result) => {
-                    if (result.data.code == 0) {
-                        _this.$message('修改成功')       
-
-                    } else{
-                        _this.$message('修改失败,请刷新重试')
-                    }
-                })
-                .catch((err) => {
-                    console.log(err)
-                    _this.$message.error('修改出现问题,请联系管理员')
-                })
-
-                if (_this.form.region == 20) {                      
-                    _this.newRow.identity = '系统管理员'   
-                    console.log(_this.newRow.identity)          
-                }else if (_this.form.region == 10) {
-                    _this.newRow.identity = '图书管理员'
-                }else if (_this.form.region == 5) {
-                    _this.newRow.identity = '老师'
-                }else if (_this.form.region == 0) {
-                    _this.newRow.identity = '学生'
+          
+                }else if(_this.form.region == '全部'){
+                    _this.$message.error('修改失败')
+                   
                 }else{
-                    _this.newRow.identity = '其他'
-                }           
+                    axios.put('/user/' + _this.newRow.id,{
+                        role: _this.newRow.role
+                    }).then((result) => {
+                        if (result.data.code == 0) {
+                            _this.$message('修改成功')
+                            _this.newRow.role = _this.form.region                                         
+                        } else{
+                            _this.$message('修改失败,请刷新重试')
+                        }
+                    }).catch((err) => {
+                        console.log(err)
+                        _this.$message.error('修改出现问题,请联系管理员')
+                    })
+                    
+                }
             },
             getDelRow(index, rows){
                 this.dialogVisible = true
@@ -234,7 +204,7 @@
             getSearchRole(value){
                 this.searchRole = value
                 this.tableData = []
-                if (value == 100) {
+                if (value == '全部') {
                     this.tableData = this.nowTableData
                 } else {
                     for (const iter of this.nowTableData) {
@@ -256,23 +226,14 @@
                 axios.post('/user/search', {
                     'name': _this.inputSearch,
                 })
-                    .then((results) => {
-                        _this.tableData = results.data
-                        // for (const key of _this.tableData) {
-                        //     if (key.role == 20) {
-                        //         key.identity = '系统管理员'
-                        //     }else if(key.role == 10) {
-                        //         key.identity = '图书管理员'                        
-                        //     }else if(key.role == 5) {
-                        //         key.identity = '老师'                        
-                        //     }else if(key.role == 0) {
-                        //         key.identity = '学生'                     
-                        //     }else {
-                        //         key.identity = '其他'                     
-                        //     }
-                        // }
+                    .then(() => {
                         this.$message('搜索成功')
                     })
+            },
+            resetAll() {
+                this.inputSearch = ''
+                this.selectSearch = ''
+                this.getAllUser()               
             },
         }
     };

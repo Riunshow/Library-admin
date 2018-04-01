@@ -182,7 +182,7 @@
         flex: 1;
         padding: 10px 20px;
         overflow: auto;
-        min-width: 900px;
+        min-width: 950px;
         .content-wrap {
           height: 90%;
           border: 1px solid #d1dbe5;

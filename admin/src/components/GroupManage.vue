@@ -17,11 +17,17 @@
 .addBtn {
 	margin-left: 30px;
 }
+.resetBtn {
+	top: 50px;
+	position: relative;
+	text-align: center;
+}
 </style>
 <template>
 	<div class="cateManage">
 		<div class="leftuser">
 			<el-input v-model="addUser" placeholder="请输入用户分组名"></el-input>
+			<el-button round class="addBtn" @click="searchUserCate">查询</el-button>			
 			<el-button type="primary" round class="addBtn" @click="addUserCate">添加</el-button>
 			<el-table :data="userTableData" id="out-table" v-loading="loading" >
 				<template v-for="column in userTableColumns">
@@ -44,7 +50,8 @@
 		
 		<div class="rightbook">
 			<el-input v-model="addBook" placeholder="请输入图书分组名"></el-input>
-			<el-button type="primary" round class="addBtn" @click="addBookCate">添加</el-button>
+			<el-button round class="addBtn" @click="searchBookCate">查询</el-button>
+			<el-button type="primary" round class="addBtn" @click="addBookCate">添加</el-button>						
 			<el-table :data="bookTableData" id="out-table" v-loading="loading">
 				<template v-for="column in bookTableColumns">
 					<el-table-column :label="column.label" :prop="column.prop" align="center">
@@ -63,6 +70,10 @@
 					</template>
 				</el-table-column>
 			</el-table>
+		</div>
+
+		<div class="resetBtn">
+			<el-button type="success" @click="resetAll">重置</el-button>
 		</div>
 	</div>
 	
@@ -140,6 +151,23 @@ export default {
 			}
 			 
 		},
+		searchUserCate() {
+			const _this = this
+			if(_this.addUser == '') {
+				_this.$message.error('输入不能为空')
+			}else {
+				axios.post('/user/category/search', {cateName: _this.addUser})
+					.then((results) => {
+						_this.userTableData = []
+						_this.$message('查找成功')
+						_this.userTableData.push(results.data)
+					})
+					.catch((err) => {
+						console.log(err)
+						_this.$message.error('出现错误,请刷新再试或联系管理员')						
+					})
+			}
+		},
 		// ---------- 
 		// 图书
 		getBookCategory() {
@@ -181,6 +209,30 @@ export default {
 					console.log(err)
 					_this.$message.error('出现错误,请刷新再试或联系管理员')						
 				})
+		},
+		searchBookCate() {
+			const _this = this
+			if(_this.addBook == '') {
+				_this.$message.error('输入不能为空')
+			}else {
+				axios.post('/book/category/search', {cateName: _this.addBook})
+					.then((results) => {
+						_this.bookTableData = []
+						_this.bookTableData.push(results.data)
+						_this.$message('查找成功')						
+					})
+					.catch((err) => {
+						console.log(err)
+						_this.$message.error('出现错误,请刷新再试或联系管理员')						
+					})
+			}
+		},
+		// ************************
+		resetAll() {
+			this.addBook = ''
+			this.addUser = ''
+			this.getUserCategory()         
+			this.getBookCategory()   
 		},
 	}
 }
