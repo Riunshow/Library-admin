@@ -11,7 +11,8 @@ const store = new Vuex.Store({
     state: {
         options: [],
         activeIndex: '/user',
-        // userInfo: {},
+        bookInfo: {},
+        userInfo: {},
         // loginUser: {
         //     role: 0,
         //     name: '',
@@ -47,10 +48,14 @@ const store = new Vuex.Store({
         set_active_index(state, index) {
             this.state.activeIndex = index;
         },
-        // 设置详情信息
-        // save_detail_info(state, info) {
-        //     this.state.userInfo = info;
-        // }
+        // 设置用户详情信息
+        save_detail_userInfo(state, info) {
+            this.state.userInfo = info;
+        },
+        // 设置图书详情信息
+        save_detail_bookInfo(state, info) {
+            this.state.bookInfo = info;
+        }
     }
 });
 

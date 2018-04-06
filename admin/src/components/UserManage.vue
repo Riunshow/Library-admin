@@ -20,7 +20,7 @@
     font-size: 12px;
 }
 .options{
-    margin-right: 30px;
+    margin: 10px;
 }
 </style>
 <!-- 用户管理组件 -->
@@ -47,7 +47,8 @@
                 label="操作"
                 prop="">
                 <template scope="scope">
-                    <!-- <el-button type="text" @click="onBtnDetailClick(scope.row)" class="options">详情</el-button> -->
+                    <!-- 详细信息 -->
+                    <el-button type="text" @click="getUserInfo(scope.row)">详细信息</el-button>                
                     <el-button type="text" @click="clickChangeRole(scope.row), dialogFormVisible = true" class="options">修改权限</el-button>
                     <el-dialog title="权限管理" :visible.sync="dialogFormVisible">
                         <el-form :model="form">
@@ -137,14 +138,10 @@
                         this.loading = false
                     })
             },
-            // onBtnDetailClick(row) {
-            //     // 1. 用户详情存vuex
-            //     this.$store.commit('save_detail_info', row);
-            //     // 2. 动态改变路由的指向
-            //     this.$router.push({
-            //         path: `/userInfo/${row.name}`
-            //     });
-            // },
+            getUserInfo(row){
+        		this.$store.commit('save_detail_userInfo', row);
+                this.$router.push({path: `userinfo/${row.id}`})
+            },
             clickChangeRole(row) {
                 this.newRow = row            
             },

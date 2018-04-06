@@ -9,7 +9,8 @@ import Template from '@/components/Template'
 import Login from '@/components/Login'
 import UserManage from '@/components/UserManage'
 import GroupManage from '@/components/GroupManage'
-import DetailInfo from '@/components/DetailInfo'
+import BookInfo from '@/components/BookInfo'
+import UserInfo from '@/components/UserInfo'
 import Personal from '@/components/PersonalCenter'
 import BookManage from '@/components/BookManage'
 
@@ -56,9 +57,9 @@ const router = new Router({
                     },
                 },
                 {
-                    path: 'userInfo/:id',
+                    path: 'userinfo/:userid',
                     name: '用户详情页',
-                    component: DetailInfo,
+                    component: UserInfo,
                     meta: {
                         requireAuth: true
                     },
@@ -72,9 +73,9 @@ const router = new Router({
                     },
                 },
                 {
-                    path: 'bookInfo/:id',
+                    path: 'bookinfo/:bookid',
                     name: '图书详情页',
-                    component: DetailInfo,
+                    component: BookInfo,
                     meta: {
                         requireAuth: true
                     },

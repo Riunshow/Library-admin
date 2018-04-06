@@ -46,7 +46,7 @@
                 prop="">
                 <template scope="scope">
                     <!-- 详细信息 -->
-                    <el-button type="text" @click="getUserInfo(scope.row)" >详细信息</el-button>                    
+                    <el-button type="text" @click="getBookInfo(scope.row)" >详细信息</el-button>                    
                     <!-- 修改分类 -->
                     <el-button type="text" @click="clickChangeCate(scope.row)" class="optionsClick">修改分类</el-button>
                     <el-dialog title="分类管理" :visible.sync="dialogFormVisible">
@@ -133,8 +133,9 @@
                         _this.nowTableData = _this.tableData     
                     })
             },
-            getUserInfo(row){
-                console.log(row);
+            getBookInfo(row){
+        		this.$store.commit('save_detail_bookInfo', row);
+                this.$router.push({path: `bookinfo/${row.id}`})
             },
             clickChangeCate(row) {
                 this.newRow = row                

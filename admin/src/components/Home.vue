@@ -75,6 +75,8 @@
         // 用户详情页的时候，对应了二级路由，需要拼接添加第二级路由
         if (this.activeIndex === '/userInfo') {
           path = this.activeIndex + '/' + this.$store.state.userInfo.name;
+        }else if (this.activeIndex === '/bookinfo') {
+          path = this.activeIndex + '/' + this.$store.state.bookInfo.id;
         }
         this.$router.push({
           path: path

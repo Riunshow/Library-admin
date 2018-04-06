@@ -139,6 +139,27 @@ const addUserCate = (opt) => {
     console.log(options)
 }
 
+const getUserInfo = () => {
+    let user = [{
+        name: '脑残用户',
+        major_class: '软件15003',
+        image: './../../static/logo.png',
+        integral: '5',
+        time: '123123',
+    }]
+    return user
+}
+
+const updateUserInfo = (opt) => {
+    const options = JSON.parse(opt.body)
+    console.log(options)
+    const msg = {
+        msg: 'success'
+    }
+    return msg
+}
+
+
 Mock.mock('/user/login', 'post', loginUser);
 Mock.mock('/user/logout', 'post', logout);
 Mock.mock('/user/category', 'get', allManager);
@@ -148,6 +169,12 @@ Mock.mock('/user/:userid', 'del', delUser);
 Mock.mock('/user/search', 'post', searchUser);
 
 Mock.mock('/user/category/add', 'post', addUserCate)
+
+// Mock.mock('/user/info/:userid', 'get', getUserInfo)
+Mock.mock('/user/info', 'get', getUserInfo)
+
+// Mock.mock('/user/update/:userid', 'put', updateUserInfo)
+Mock.mock('/user/update', 'put', updateUserInfo)
 
 // **********************************************************
 //  图书
@@ -167,7 +194,7 @@ const searchBook = (opt) => {
         date: Random.date(),
         name: Random.cname(),
         cate: Random.pick(randomArray),
-        id: Random.string(7),
+        id: Random.number(7),
     }
     books.push(newBook)
     return books;
@@ -212,7 +239,7 @@ const bookManage = () => {
             date: Random.date(),
             name: Random.cname(),
             cate: Random.pick(randomArray),
-            id: Random.string(7),
+            id: Random.integer(5),
         }
         books.push(newBook)
     }
@@ -261,6 +288,31 @@ const addBookCate = (opt) => {
     console.log(options)
 }
 
+const getBookInfo = ({ _req }) => {
+    let books = [{
+        name: '智障产品',
+        author: 'TT',
+        image: './../../static/logo.png',
+        content: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        category: '心理',
+        press: '清华大学出版社',
+        numeration: 'ISO-900234124241342342',
+        count: '5'
+    }]
+    return books
+}
+
+const updateBookInfo = (opt) => {
+    const options = JSON.parse(opt.body)
+    console.log(options)
+    const msg = {
+        msg: 'success'
+    }
+    return msg
+}
+
+
+
 Mock.mock('/book/search', 'post', searchBook);
 Mock.mock('/book/category', 'get', allBookCate);
 
@@ -269,12 +321,18 @@ Mock.mock('/book/category', 'get', allBookCate);
 Mock.mock('/book/category', 'post', allBookCate);
 Mock.mock('/book', 'post', allBookCate);
 // *******
-
 Mock.mock('/book', 'get', bookManage);
 Mock.mock('/book/:bookid', 'put', changeCate);
 Mock.mock('/book/:bookid', 'del', delBook);
 
 Mock.mock('/book/category/add', 'post', addBookCate)
+
+// Mock.mock('/book/info/:bookid', 'get', getBookInfo)
+Mock.mock('/book/info', 'get', getBookInfo)
+
+// Mock.mock('/book/update/:bookid', 'put', updateBookInfo)
+Mock.mock('/book/update', 'put', updateBookInfo)
+
 
 
 // ********************************8
