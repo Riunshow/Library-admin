@@ -141,7 +141,7 @@ const addUserCate = (opt) => {
 
 const getUserInfo = () => {
     let user = [{
-        name: '脑残用户',
+        name: '用户',
         major_class: '软件15003',
         image: './../../static/logo.png',
         integral: '5',
@@ -290,7 +290,7 @@ const addBookCate = (opt) => {
 
 const getBookInfo = ({ _req }) => {
     let books = [{
-        name: '智障产品',
+        name: '产品',
         author: 'TT',
         image: './../../static/logo.png',
         content: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
