@@ -27,13 +27,13 @@
 <template>
     <div class="user-wrap">
         <div class="search-place">
-            <el-input placeholder="请输入姓名" v-model="inputSearch" clearable></el-input>
+            <el-input placeholder="请输入要搜索用户名" v-model="inputSearch" clearable></el-input>
             <el-button class="searchBtn" @click="searchUser">搜索</el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
             <el-button type="success" @click="resetAll" class="searchBtn">重置</el-button>
             <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole' class="selectRole">
-                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.label" ></el-option>
+                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value" ></el-option>
             </el-select>
         </div>
         <el-table :data="tableData" id="out-table" v-loading="loading">
@@ -46,30 +46,22 @@
             <el-table-column
                 label="操作"
                 prop="">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <!-- 详细信息 -->
                     <el-button type="text" @click="getUserInfo(scope.row)">详细信息</el-button>                
                     <el-button type="text" @click="clickChangeRole(scope.row), dialogFormVisible = true" class="options">修改权限</el-button>
                     <el-dialog title="权限管理" :visible.sync="dialogFormVisible">
                         <el-form :model="form">
                             <el-form-item label="权限选择" :label-width="formLabelWidth">
-                            <el-select v-model="form.region" placeholder="请选择权限">
-                                <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.label" ></el-option>
+                            <el-select v-model="form.region" placeholder="请选择权限" @change="getChangeRole">
+                                <el-option  v-for="item in changeRoleoptions" :key="item.value" :label="item.label" :value="item.value" ></el-option>
                             </el-select>
                             </el-form-item>
                         </el-form>
                         <div slot="footer" class="dialog-footer">
                             <el-button @click="dialogFormVisible = false">取 消</el-button>
-                            <el-button type="primary" @click="getChangeRole">确 定</el-button>
+                            <el-button type="primary" @click="changeRole()">确 定</el-button>
                         </div>
-                    </el-dialog>
-                    <el-button type="text" @click="getDelRow(scope.$index, scope.row)">删除</el-button>
-                    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
-                        <span>确认删除?</span>
-                        <span slot="footer" class="dialog-footer">
-                            <el-button @click="dialogVisible = false">取 消</el-button>
-                            <el-button type="danger" @click.native.prevent="deleteRow()">确 定</el-button>
-                        </span>
                     </el-dialog>
                 </template>
             </el-table-column>
@@ -78,7 +70,6 @@
 </template>
 
 <script>
-    import axios from 'axios'
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
     export default {
@@ -86,7 +77,29 @@
             return {
                 inputSearch: '',
                 selectSearch: '',
-                options: [],
+                options: [{
+                    value: '-1',
+                    label: '全部',
+                }, {
+                    value: '3',
+                    label: '系统管理员',
+                }, {
+                    value: '2',
+                    label: '图书管理员',
+                }, {
+                    value: '1',
+                    label: '普通用户',
+                }],
+                changeRoleoptions: [{
+                    value: '3',
+                    label: '系统管理员',
+                }, {
+                    value: '2',
+                    label: '图书管理员',
+                }, {
+                    value: '1',
+                    label: '普通用户',
+                }],
                 dialogTableVisible: false,
                 dialogFormVisible: false,
                 dialogVisible: false,
@@ -105,34 +118,36 @@
                 nowTableData: [],
                 tableColumns: [
                     { label: 'id', prop: 'id'},                    
-                    { label: '日期', prop: 'date'},
-                    { label: '姓名', prop: 'name'},
-                    { label: '身份', prop: 'role'}
+                    { label: '用户名', prop: 'account'},
+                    { label: '姓名', prop: 'nickname'},
+                    { label: '身份', prop: 'rolename'}
                 ],
                 delIndex: '',
                 delRows: '',
                 searchRole: '',
-                loading: true
+                selectRole: '', // 修改权限时,选择的 role
+                loading: true,
             };
         },
         created(){
-            this.getCategory()
             this.getAllUser()               
         },
         mounted() {
         },
         methods: {
-            getCategory() {
-                const _this = this                
-                axios.get('/user/category')
-                    .then(results => {
-                        _this.options = results.data
-                    })
-            },
             getAllUser() {
                 const _this = this
-                axios.get('/user')
+                this.$axios.get('/admin/user/-1')
                     .then(results => {
+                        for (const key of results.data) {
+                            if (key.role == 3) {
+                                key.rolename = '系统管理员'
+                            } else if (key.role == 2) {
+                                key.rolename = '图书管理员'
+                            } else if (key.role == 1) {
+                                key.rolename = '普通用户'                                
+                            }
+                        }
                         _this.tableData = results.data
                         _this.nowTableData = _this.tableData
                         this.loading = false
@@ -143,12 +158,14 @@
                 this.$router.push({path: `userinfo/${row.id}`})
             },
             clickChangeRole(row) {
-                this.newRow = row            
+                this.newRow = row     
             },
-            getChangeRole() {
+            getChangeRole(value) {
+                this.selectRole = value;
+            },
+            changeRole() {
                 const _this = this
                 _this.dialogFormVisible = false;
-
                 if (_this.form.region == '') {
                     _this.$message.error('修改失败,所选内容不能为空')
           
@@ -156,37 +173,26 @@
                     _this.$message.error('修改失败')
                    
                 }else{
-                    axios.put('/user/' + _this.newRow.id,{
-                        role: _this.newRow.role
+                    this.$axios.put('/admin/' + _this.newRow.id,{
+                        role: _this.selectRole
                     }).then((result) => {
-                        if (result.data.code == 0) {
+                        if (result.data[0] == 1) {
                             _this.$message('修改成功')
-                            _this.newRow.role = _this.form.region                                         
+                            if (_this.selectRole == 3) {
+                                 _this.newRow.rolename = '系统管理员'
+                            } else if (_this.selectRole == 2) {
+                                 _this.newRow.rolename = '图书管理员'
+                            } else if (_this.selectRole == 1) {
+                                 _this.newRow.rolename = '普通用户'                                
+                            }                                     
                         } else{
                             _this.$message('修改失败,请刷新重试')
                         }
                     }).catch((err) => {
-                        console.log(err)
                         _this.$message.error('修改出现问题,请联系管理员')
                     })
                     
                 }
-            },
-            getDelRow(index, rows){
-                this.dialogVisible = true
-                this.delIndex = index
-                this.delRows = rows
-            },
-            deleteRow() {
-                this.dialogVisible = false
-                this.tableData.splice(this.delIndex, 1);
-
-                const _this = this
-
-                axios.delete('/user/' + this.delRows.id)
-                    .then(() => {
-                        _this.$message('删除成功')
-                    })
             },
             exportExcel () {
                 /* generate workbook object from table */
@@ -201,7 +207,7 @@
             getSearchRole(value){
                 this.searchRole = value
                 this.tableData = []
-                if (value == '全部') {
+                if (value == -1) {
                     this.tableData = this.nowTableData
                 } else {
                     for (const iter of this.nowTableData) {
@@ -214,17 +220,19 @@
             searchUser() {
                 const _this = this
                 let options = {}
-                // _this.tableData = []
+                this.tableData = []
 
                 if (_this.inputSearch == '' && _this.selectSearch == '') {
-                    _this.$message.error('请输入要搜索的名字')
+                    _this.$message.error('请输入要搜索的用户名')
                     return;
                 }
-                axios.post('/user/search', {
-                    'name': _this.inputSearch,
-                })
-                    .then(() => {
+                this.$axios.get('/admin/search?name=' + _this.inputSearch)
+                    .then((results) => {
+                        _this.tableData = results.data
                         this.$message('搜索成功')
+                    })
+                    .catch((err) => {
+                        this.$message.error('搜索失败')
                     })
             },
             resetAll() {

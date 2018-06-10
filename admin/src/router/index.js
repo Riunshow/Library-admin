@@ -3,17 +3,20 @@ import Router from 'vue-router'
 
 import store from './../store'
 
-import Home from '@/components/Home'
-import FirstPage from '@/components/FirstPage'
-import Template from '@/components/Template'
-import Login from '@/components/Login'
-import UserManage from '@/components/UserManage'
-import GroupManage from '@/components/GroupManage'
-import BookInfo from '@/components/BookInfo'
-import UserInfo from '@/components/UserInfo'
-import Personal from '@/components/PersonalCenter'
-import BookManage from '@/components/BookManage'
 
+import Login from '@/components/Login'
+import FirstPage from '@/components/common/FirstPage'
+import Home from '@/components/Home'
+import Template from '@/components/Template'
+
+import UserManage from '@/components/System/UserManage'
+import UserGroupManage from '@/components/System/UserGroupManage'
+import UserInfo from '@/components/System/UserInfo'
+import Personal from '@/components/System/PersonalCenter'
+
+import BookInfo from '@/components/Book/BookInfo'
+import BookManage from '@/components/Book/BookManage'
+import BookGroupManage from '@/components/Book/BookGroupManage'
 
 Vue.use(Router)
 
@@ -39,7 +42,7 @@ const router = new Router({
                     },
                 },
                 {
-                    path: 'user',
+                    path: 'usermanage',
                     name: '用户管理',
                     component: UserManage,
                     meta: {
@@ -48,9 +51,17 @@ const router = new Router({
                     },
                 },
                 {
-                    path: 'group',
-                    name: '分组管理',
-                    component: GroupManage,
+                    path: 'bookgroup',
+                    name: '图书分组管理',
+                    component: BookGroupManage,
+                    meta: {
+                        requireAuth: true,
+                    },
+                },
+                {
+                    path: 'usergroup',
+                    name: '用户分组管理',
+                    component: UserGroupManage,
                     meta: {
                         requireAuth: true,
                         adminAuth: true
@@ -65,7 +76,7 @@ const router = new Router({
                     },
                 },
                 {
-                    path: 'book',
+                    path: 'bookmanage',
                     name: '图书管理',
                     component: BookManage,
                     meta: {
@@ -116,9 +127,9 @@ router.beforeEach((to, from, next) => {
             next()
         }
         if (to.meta.adminAuth) {
-            if (sessionStorage.user_role == 20) {
+            if (sessionStorage.user_role == 3) {
                 next()
-            } else if (sessionStorage.user_role < 20) {
+            } else {
                 next({
                     path: '/index'
                 })

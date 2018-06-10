@@ -36,7 +36,6 @@
 
 <script>
 	import store from './../store'
-	import axios from "axios";
 	export default {
 		name: "VLOGIN",
 		data() {
@@ -58,32 +57,34 @@
 				if (!isCheck) {
 					return;
 				}
-				axios.post('/user/login', {
-					user_num: _this.user_num,
-					user_pwd: _this.user_pwd
+				this.$axios.post('/admin/login', {
+					account: _this.user_num,
+					password: _this.user_pwd
 				}).then(result => {
-					if (result.data.code === 0) {
+					if (result.data.error === false) {
 						let userData = {
-							name: result.data.username,
-							role: result.data.role
+							name: result.data.data.nickname,
+							role: result.data.data.role
 						}
 
 						// vuex
 						// store.commit("login", userData)
 
 						// sessionStorage
-						_this.$emit('userSignIn', result.data.username,result.data.role);
+						_this.$emit('userSignIn', result.data.data.nickname,result.data.data.role);
 
 						_this.$router.push("/index");
-					} else if (result.data.code === -1 || result.data.code === -2) {
-						_this.loginTipMsg = result.data.code === -1 ? "账号未注册!" : "密码错误!";
+					} else if (result.data.error) {
+						
+					}
+				}).catch(err => {
+					if (err.response.data.error) {
+						_this.loginTipMsg = "账号未注册或密码错误!";
 						_this.showLoginTip = true;
 						window.setTimeout(function() {
 							_this.showLoginTip = false;
 						}, 5000);
 					}
-				}).catch(err => {
-					console.log(err);
 				});
 			},
 			// 输入验证

@@ -44,7 +44,7 @@
             <el-table-column
                 label="操作"
                 prop="">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <!-- 详细信息 -->
                     <el-button type="text" @click="getBookInfo(scope.row)" >详细信息</el-button>                    
                     <!-- 修改分类 -->

@@ -66,16 +66,8 @@ const allManager = () => {
         label: '图书管理员',
         id: Random.string(5),
     }, {
-        value: '5',
-        label: '老师',
-        id: Random.string(5),
-    }, {
-        value: '0',
-        label: '学生',
-        id: Random.string(5),
-    }, {
         value: '-1',
-        label: '其他',
+        label: '普通用户',
         id: Random.string(5),
     }]
 
@@ -160,21 +152,21 @@ const updateUserInfo = (opt) => {
 }
 
 
-Mock.mock('/user/login', 'post', loginUser);
-Mock.mock('/user/logout', 'post', logout);
-Mock.mock('/user/category', 'get', allManager);
-Mock.mock('/user', 'get', userManage);
-Mock.mock('/user/:userid', 'put', changeRole);
-Mock.mock('/user/:userid', 'del', delUser);
-Mock.mock('/user/search', 'post', searchUser);
+// Mock.mock('/user/login', 'post', loginUser);
+// Mock.mock('/user/logout', 'post', logout);
+// Mock.mock('/user/category', 'get', allManager);
+// Mock.mock('/user', 'get', userManage);
+// Mock.mock('/user/:userid', 'put', changeRole);
+// Mock.mock('/user/:userid', 'del', delUser);
+// Mock.mock('/user/search', 'post', searchUser);
 
-Mock.mock('/user/category/add', 'post', addUserCate)
+// Mock.mock('/user/category/add', 'post', addUserCate)
 
 // Mock.mock('/user/info/:userid', 'get', getUserInfo)
-Mock.mock('/user/info', 'get', getUserInfo)
+// Mock.mock('/user/info', 'get', getUserInfo)
 
 // Mock.mock('/user/update/:userid', 'put', updateUserInfo)
-Mock.mock('/user/update', 'put', updateUserInfo)
+// Mock.mock('/user/update', 'put', updateUserInfo)
 
 // **********************************************************
 //  图书
@@ -202,29 +194,45 @@ const searchBook = (opt) => {
 
 const allBookCate = () => {
     const bookCategory = [{
-        value: '100',
-        label: '全部',
-        id: Random.string(5),
+        direction: '网络文学',
+        category: [{
+            name: '全部'
+        }, {
+            name: '男频'
+        }, {
+            name: '女频'
+        }, {
+            name: '玄幻奇幻'
+        }, {
+            name: '现代都市'
+        }, {
+            name: '武侠仙侠'
+        }, {
+            name: '现代言情'
+        }, {
+            name: '穿越重生'
+        }, {
+            name: '古装言情'
+        }],
     }, {
-        value: '1',
-        label: '计算机',
-        id: Random.string(5),
-    }, {
-        value: '2',
-        label: '语言',
-        id: Random.string(5),
-    }, {
-        value: '3',
-        label: '艺术',
-        id: Random.string(5),
-    }, {
-        value: '4',
-        label: '视觉',
-        id: Random.string(5),
-    }, {
-        value: '5',
-        label: '设计',
-        id: Random.string(5),
+        direction: '教育',
+        category: [{
+            name: '全部'
+        }, {
+            name: '中小学教辅'
+        }, {
+            name: '考试'
+        }, {
+            name: '外语工具书'
+        }, {
+            name: '教师用书'
+        }, {
+            name: '英语四六级'
+        }, {
+            name: '考研'
+        }, {
+            name: '公务员'
+        }],
     }]
 
     return bookCategory;

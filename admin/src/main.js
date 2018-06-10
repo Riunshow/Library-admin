@@ -11,7 +11,14 @@ import 'element-ui/lib/theme-default/index.css';
 import store from '@/store/index';
 Vue.config.productionTip = false;
 
+import axios from 'axios'
+
+Vue.prototype.$axios = axios
+axios.defaults.withCredentials = true
+
 Vue.use(ElementUI);
+
+Vue.prototype.$serverIP = 'http://192.168.43.14:7001'
 
 require('./mock.js')
 

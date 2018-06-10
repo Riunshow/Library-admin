@@ -1,28 +1,3 @@
-<style lang="css" scoped>
-
-.leftuser {
-	width: 49%;	
-	float: left;
-}
-.rightbook {
-	width: 49%;
-	float: left;
-	margin-left: 2%;
-}
-
-.el-input {
-	width: 50%;
-	margin-bottom: 10px;
-}
-.addBtn {
-	margin-left: 30px;
-}
-.resetBtn {
-	top: 50px;
-	position: relative;
-	text-align: center;
-}
-</style>
 <template>
 	<div class="cateManage">
 		<div class="leftuser">
@@ -51,8 +26,37 @@
 		<div class="rightbook">
 			<el-input v-model="addBook" placeholder="请输入图书分组名"></el-input>
 			<el-button round class="addBtn" @click="searchBookCate">查询</el-button>
-			<el-button type="primary" round class="addBtn" @click="addBookCate">添加</el-button>						
-			<el-table :data="bookTableData" id="out-table" v-loading="loading">
+			<el-button type="primary" round class="addBtn" @click="addBookCate">添加</el-button>
+
+			<el-table :data="bookTableData" v-loading="loading">
+				<el-table-column prop="direction" label="方向" align="center">
+				</el-table-column>
+				<el-table-column prop="" label="分类" align="center">
+					<template scope="scope">
+						<el-select v-model="selectCate[scope.$index]" placeholder="请选择" size="small">
+							<el-option
+								v-for="item in bookTableData[scope.$index].category"
+								:key="item.name"
+								:label="item.name"
+								:value="item.name">
+							</el-option>
+						</el-select>
+					</template>
+				</el-table-column>
+				<el-table-column label="操作" prop="" class="options" align="center">
+					<template scope="scope">
+						<el-button type="text" @click="getBookDelRow(scope.$index, scope.row)">删除</el-button>
+						<el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+							<span>确认删除?</span>
+							<span slot="footer" class="dialog-footer">
+								<el-button @click="dialogVisible = false">取 消</el-button>
+								<el-button type="danger" @click.native.prevent="deleteBookRow()">确 定</el-button>
+							</span>
+						</el-dialog>
+					</template>
+				</el-table-column>
+			</el-table>					
+			<!-- <el-table :data="bookTableData" id="out-table" v-loading="loading">
 				<template v-for="column in bookTableColumns">
 					<el-table-column :label="column.label" :prop="column.prop" align="center">
 					</el-table-column>
@@ -69,7 +73,7 @@
 						</el-dialog>
 					</template>
 				</el-table-column>
-			</el-table>
+			</el-table> -->
 		</div>
 
 		<div class="resetBtn">
@@ -93,6 +97,7 @@ export default {
 			bookTableData: [],
 			addUser: '',
 			addBook: '',
+			selectCate: ['全部','全部'],
 
 			userTableColumns: [
 				{ label: 'id', prop: 'id'},				
@@ -100,7 +105,8 @@ export default {
 			],
 			bookTableColumns: [               
 				{ label: 'id', prop: 'id'},				
-				{ label: '图书分组', prop: 'label'},
+				{ label: '方向', prop: 'label'},
+				{ label: '分类', prop: 'cate'},
 			],
 		};
 	},
@@ -238,3 +244,44 @@ export default {
 }
 </script>
 
+<style lang="css" scoped>
+
+/* .leftuser {
+	width: 49%;	
+	float: left;
+} */
+/* .rightbook {
+	width: 49%;
+	float: left;
+	margin-left: 2%;
+} */
+.cateManage:after {
+	content:".";
+	clear:both;
+	display:block;
+	height:0;
+	overflow:hidden;
+	visibility:hidden;
+}
+
+.leftuser {
+	width: 70%;	
+}
+.rightbook {
+	width: 70%;	
+	margin-top: 15px;
+}
+
+.el-input {
+	width: 50%;
+	margin-bottom: 10px;
+}
+.addBtn {
+	margin-left: 30px;
+}
+.resetBtn {
+	top: 50px;
+	position: relative;
+	text-align: center;
+}
+</style>

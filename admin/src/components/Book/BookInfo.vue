@@ -7,7 +7,7 @@ img {
 	<div id="bookinfo">
 		 <el-table :data="bookData" style="width: 100%">
 			<el-table-column label="图片" width="100">
-                 <template scope="scope">
+                 <template slot-scope="scope">
                      <img :src="scope.row.image" width="40" height="40"/>
                  </template>
             </el-table-column>
@@ -38,7 +38,7 @@ img {
 				label="库存数量">
 			</el-table-column>
 			<el-table-column label="操作" prop="">
-				<template scope="scope">
+				<template slot-scope="scope">
 					<el-button type="text" @click="dialogFormVisible = true">修改</el-button>
 					<el-dialog title="图书信息" :visible.sync="dialogFormVisible">
 						<el-form :model="bookForm">

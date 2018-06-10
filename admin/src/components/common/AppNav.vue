@@ -20,8 +20,12 @@
             name: '首页'
           },
           {
-            route: '/book',
+            route: '/bookmanage',
             name: '图书管理'
+          },
+          {
+            route: '/bookgroup',
+            name: '图书分组管理',
           },
           {
             route: '/personal',
@@ -33,16 +37,12 @@
             name: '首页'
           },
           {
-            route: '/book',
-            name: '图书管理'
-          },
-          {
-            route: '/user',
+            route: '/usermanage',
             name: '用户管理',
           },
           {
-            route: '/group',
-            name: '分组管理',
+            route: '/usergroup',
+            name: '用户分组管理',
           },
           {
             route: '/personal',
@@ -80,9 +80,9 @@
     methods: {
       isAdmin() {
         const role = sessionStorage.user_role
-        if(role == 10) {
+        if(role == 2) {
           this.menus = this.menus1
-        }else if(role == 20) {
+        }else if(role == 3) {
           this.menus = this.menus2
         }
       }

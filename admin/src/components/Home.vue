@@ -5,8 +5,8 @@
       <div class="welcome">欢迎你,
         <el-dropdown @command="logout">
           <span class="el-dropdown-link">
-                      {{user_name}}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </span>
+              {{user_name}}<i class="el-icon-arrow-down el-icon--right"></i>
+          </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>退出</el-dropdown-item>
           </el-dropdown-menu>
@@ -36,7 +36,6 @@
 <script>
   import store from './../store'
   import AppNav from './common/AppNav';
-  import axios from 'axios'
   export default {
     name: 'home',
     components: {
@@ -56,12 +55,8 @@
     methods: {
       logout() {
         const _this = this
-        axios.post('/user/logout')
+        this.$axios.get('/user/logout')
           .then(() => {
-            // vuex
-            // _this.$store.state.loginUser = {}
-            // location.reload()
-            // sessionStorage
             sessionStorage.clear();
             location.reload()
             this.$router.push({
@@ -73,8 +68,8 @@
       tabClick(tab) {
         let path = this.activeIndex;
         // 用户详情页的时候，对应了二级路由，需要拼接添加第二级路由
-        if (this.activeIndex === '/userInfo') {
-          path = this.activeIndex + '/' + this.$store.state.userInfo.name;
+        if (this.activeIndex === '/userinfo') {
+          path = this.activeIndex + '/' + this.$store.state.userInfo.id;
         }else if (this.activeIndex === '/bookinfo') {
           path = this.activeIndex + '/' + this.$store.state.bookInfo.id;
         }
@@ -186,10 +181,11 @@
         overflow: auto;
         min-width: 950px;
         .content-wrap {
-          height: 90%;
+          min-height: 75%;
           border: 1px solid #d1dbe5;
           border-top: none;
           padding: 0 20px;
+          padding-bottom: 80px;
         }
       }
     }

@@ -7,18 +7,13 @@ img {
 	<div id="userinfo">
 		 <el-table :data="userData" style="width: 100%">
 			<el-table-column label="头像" width="100">
-                 <template scope="scope">
-                     <img :src="scope.row.image" width="40" height="40"/>
+                 <template slot-scope="scope">
+                     <img :src="userData[0].avatar" width="40" height="40"/>
                  </template>
             </el-table-column>
 			<el-table-column
-				prop="name"
+				prop="nickname"
 				label="姓名"
-				width="180">
-			</el-table-column>
-			<el-table-column
-				prop="major_class"
-				label="专业班级"
 				width="180">
 			</el-table-column>
 			<el-table-column
@@ -26,25 +21,19 @@ img {
 				label="积分">
 			</el-table-column>
 			<el-table-column
-				prop="time"
+				prop="readingTime"
 				label="阅读时长">
 			</el-table-column>
 			<el-table-column label="操作" prop="">
-				<template scope="scope">
+				<template slot-scope="scope">
 					<el-button type="text" @click="dialogFormVisible = true">修改</el-button>
 					<el-dialog title="用户信息" :visible.sync="dialogFormVisible">
 						<el-form :model="userForm">
+							<el-form-item label="头像" :label-width="formLabelWidth">
+								<el-input v-model="userForm.avatar" auto-complete="off"></el-input>
+							</el-form-item>
 							<el-form-item label="姓名" :label-width="formLabelWidth">
-								<el-input v-model="userForm.name" auto-complete="off"></el-input>
-							</el-form-item>
-							<el-form-item label="专业班级" :label-width="formLabelWidth">
-								<el-input v-model="userForm.major_class" auto-complete="off"></el-input>
-							</el-form-item>
-							<el-form-item label="积分" :label-width="formLabelWidth">
-								<el-input v-model="userForm.integral" auto-complete="off"></el-input>
-							</el-form-item>
-							<el-form-item label="阅读时长" :label-width="formLabelWidth">
-								<el-input v-model="userForm.time" auto-complete="off"></el-input>
+								<el-input v-model="userForm.nickname" auto-complete="off"></el-input>
 							</el-form-item>
 						</el-form>
 						<div slot="footer" class="dialog-footer">
@@ -82,21 +71,32 @@ export default {
 	  	getUserInfo() {
 			const _this = this
 		//   axios.get(`/user/info/${this.userId}`)
-		  axios.get('/user/info')
+		  axios.get('/user/info/' + this.userId)
 		  	.then((results) => {
-				  console.log(results);
-				  _this.userData = results.data
-				  _this.userForm = results.data[0]
-			  })
+				_this.userData.push(results.data.data)
+				_this.userForm = {
+					avatar: results.data.data.avatar,
+					nickname: results.data.data.nickname,
+				}
+			})
+			.catch((err) => {
+				_this.$message.error('查询失败')
+			})
+
 		  },
 		  updateUserInfo() {
 			this.dialogFormVisible = false
 			const _this = this
-			// axios.put(`/user/update/${this.userId}`,{newuserInfo: this.userForm}) 
-			axios.put(`/user/update`,{newUserInfo: this.userForm})
-				.then(results => {
-					console.log(results.data);
-				})
+			if (this.userForm.avatar == null || this.userForm.nickname == null ) {
+				_this.$message.error('不能为空')
+			}else{
+				axios.put('/user/info/' + this.userId, _this.userForm)
+					.then(results => {
+						_this.userData[0].avatar = _this.userForm.avatar
+						_this.userData[0].nickname = _this.userForm.nickname
+					})
+			}
+
 		  },
 	},
   }
