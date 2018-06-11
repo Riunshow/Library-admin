@@ -1,21 +1,37 @@
 <template>
 	<div class="cateManage">
 		<div class="rightbook">
-			<el-input v-model="addBook" placeholder="请输入图书分组名"></el-input>
-			<el-button round class="addBtn" @click="searchBookCate">查询</el-button>
-			<el-button type="primary" round class="addBtn" @click="addBookCate">添加</el-button>
-
-			<el-table :data="bookTableData" v-loading="loading">
-				<el-table-column prop="direction" label="方向" align="center">
+			<div class="herderOption">
+				<el-cascader :options="options" change-on-select placeholder="请输入分组名"></el-cascader>
+				<el-button round class="addBtn" @click="searchBookCate">查询</el-button>
+				<el-button type="primary" round class="addBtn" @click="addBookCategory = true">添加</el-button>
+				<el-button lass="addBtn" type="success" @click="resetAll" round>重置</el-button>
+			</div>
+			<el-dialog title="添加分类" :visible.sync="addBookCategory">
+				<el-form :model="form">
+					<el-form-item label="方向" :label-width="formLabelWidth">
+						<el-input v-model="form.nameDirection" auto-complete="off"></el-input>
+					</el-form-item>
+					<el-form-item label="分类" :label-width="formLabelWidth">
+						<el-input v-model="form.nameCategory" auto-complete="off"></el-input>
+					</el-form-item>
+				</el-form>
+				<div slot="footer" class="dialog-footer">
+					<el-button @click="dialogFormVisible = false">取 消</el-button>
+					<el-button type="primary" @click="addBookCate()">确 定</el-button>
+				</div>
+			</el-dialog>
+			<el-table :data="bookTableData" v-loading="loading" :default-sort = "{prop: 'category', order: 'descending'}">
+				<el-table-column prop="category" label="方向" align="center" sortable>
 				</el-table-column>
 				<el-table-column prop="" label="分类" align="center">
 					<template slot-scope="scope">
-						<el-select v-model="selectCate[scope.$index]" placeholder="请选择" size="small">
+						<el-select v-model="selectTypeModel" @visible-change="getType(scope.$index, scope.row)" placeholder="请选择" size="small">
 							<el-option
-								v-for="item in bookTableData[scope.$index].category"
-								:key="item.name"
-								:label="item.name"
-								:value="item.name">
+								v-for="item in selectType"
+								:key="item.id"
+								:label="item.type"
+								:value="item.id">
 							</el-option>
 						</el-select>
 					</template>
@@ -34,10 +50,6 @@
 				</el-table-column>
 			</el-table>					
 		</div>
-
-		<div class="resetBtn">
-			<el-button type="success" @click="resetAll">重置</el-button>
-		</div>
 	</div>
 	
 </template>
@@ -53,22 +65,42 @@ export default {
 			delIndex: 0,
 			delRows: 0,
 			bookTableData: [],
-			addBook: '',
-			selectCate: ['全部','全部'],
+			selectType: [],
+			selectTypeModel: '',
+			addBookCategory: false,
+			options: [],
+			form: {
+				nameDirection: '',
+				nameCategory: '',
+			},
+			formLabelWidth: '120px',
 		};
 	},
   	created(){       
 		this.getBookCategory()         
 	},
 	methods: {
-		// 图书
-		getBookCategory() {
-			const _this = this                	
-			axios.get('/book/category')
+		// 图书大分类
+		getBookCategory() {                	
+			this.$axios.get('/category')
 				.then(results => {
-					_this.bookTableData = results.data
-					_this.loading = false
+					this.bookTableData = results.data
+					this.loading = false
 				})
+				.catch(() => {
+					this.$message.error('出现错误,请刷新再试或联系管理员')
+				})
+		},
+		// 请求子分类
+		getType(index, rows) {
+			this.$axios
+				.get('/category/type?category='+rows.category)
+				.then((results) => {
+					console.log(results.data);
+					this.selectType = results.data
+				})
+
+				
 		},
 		getBookDelRow(index, rows){
                 this.dialogVisible = true
@@ -79,43 +111,47 @@ export default {
 			this.dialogVisible = false
 			this.bookTableData.splice(this.delIndex, 1);
 
-			const _this = this
-
 			axios.delete('/book/'+ this.delRows.id)
 				.then(() => {
-					_this.$message('删除成功')
+					this.$message('删除成功')
 				})
 		},
 		addBookCate() {
-			const _this = this
-			 axios.post('/book/category/add', {cateName: _this.addBook})
+			
+			if (this.form.nameDirection == '' || this.form.nameCategory == '') {
+				this.$message.error('输入不能为空')
+			}else {
+				axios.post('/category', {
+					category: this.form.nameDirection,
+					type: this.form.nameCategory
+			 	})
 			 	.then(() => {
-					if(_this.addBook == '') {
-						_this.$message.error('输入不能为空')
-					}else {
-						_this.$message('添加成功')
-						this.getBookCategory()
-					}
+					this.$message('添加成功')
+					this.getBookCategory()
+					this.addBookCategory = false
 				 })
 				.catch((err) => {
-					console.log(err)
-					_this.$message.error('出现错误,请刷新再试或联系管理员')						
+					this.$message.error('出现错误,请刷新再试或联系管理员')						
 				})
+			}
 		},
 		searchBookCate() {
-			const _this = this
-			if(_this.addBook == '') {
-				_this.$message.error('输入不能为空')
+			
+			if(this.addBook == '') {
+				this.$message.error('输入不能为空')
 			}else {
-				axios.post('/book/category/search', {cateName: _this.addBook})
+					axios.post('/book/category/search', {
+						category: this.form.nameDirection,
+						type: this.form.nameCategory
+					})
 					.then((results) => {
-						_this.bookTableData = []
-						_this.bookTableData.push(results.data)
-						_this.$message('查找成功')						
+						this.bookTableData = []
+						this.bookTableData.push(results.data)
+						this.$message('查找成功')						
 					})
 					.catch((err) => {
 						console.log(err)
-						_this.$message.error('出现错误,请刷新再试或联系管理员')						
+						this.$message.error('出现错误,请刷新再试或联系管理员')						
 					})
 			}
 		},
@@ -141,6 +177,9 @@ export default {
 .rightbook {
 	/* width: 70%;	 */
 	/* margin-top: 15px; */
+}
+.herderOption {
+	margin-bottom: 15px;
 }
 
 .el-input {

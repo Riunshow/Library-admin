@@ -40,10 +40,10 @@
             route: '/usermanage',
             name: '用户管理',
           },
-          {
-            route: '/usergroup',
-            name: '用户分组管理',
-          },
+          // {
+          //   route: '/usergroup',
+          //   name: '用户分组管理',
+          // },
           {
             route: '/personal',
             name: '个人中心'

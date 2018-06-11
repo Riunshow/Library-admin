@@ -321,25 +321,25 @@ const updateBookInfo = (opt) => {
 
 
 
-Mock.mock('/book/search', 'post', searchBook);
-Mock.mock('/book/category', 'get', allBookCate);
+// Mock.mock('/book/search', 'post', searchBook);
+// Mock.mock('/book/category', 'get', allBookCate);
 
-// *******
-// 添加分类
-Mock.mock('/book/category', 'post', allBookCate);
-Mock.mock('/book', 'post', allBookCate);
-// *******
-Mock.mock('/book', 'get', bookManage);
-Mock.mock('/book/:bookid', 'put', changeCate);
-Mock.mock('/book/:bookid', 'del', delBook);
+// // *******
+// // 添加分类
+// Mock.mock('/book/category', 'post', allBookCate);
+// Mock.mock('/book', 'post', allBookCate);
+// // *******
+// Mock.mock('/book', 'get', bookManage);
+// Mock.mock('/book/:bookid', 'put', changeCate);
+// Mock.mock('/book/:bookid', 'del', delBook);
 
-Mock.mock('/book/category/add', 'post', addBookCate)
+// Mock.mock('/book/category/add', 'post', addBookCate)
 
-// Mock.mock('/book/info/:bookid', 'get', getBookInfo)
-Mock.mock('/book/info', 'get', getBookInfo)
+// // Mock.mock('/book/info/:bookid', 'get', getBookInfo)
+// Mock.mock('/book/info', 'get', getBookInfo)
 
-// Mock.mock('/book/update/:bookid', 'put', updateBookInfo)
-Mock.mock('/book/update', 'put', updateBookInfo)
+// // Mock.mock('/book/update/:bookid', 'put', updateBookInfo)
+// Mock.mock('/book/update', 'put', updateBookInfo)
 
 
 
@@ -370,5 +370,5 @@ const searchBookCate = (opt) => {
     return result;
 }
 
-Mock.mock('/user/category/search', 'post', searchUserCate)
-Mock.mock('/book/category/search', 'post', searchBookCate)
+// Mock.mock('/user/category/search', 'post', searchUserCate)
+// Mock.mock('/book/category/search', 'post', searchBookCate)
