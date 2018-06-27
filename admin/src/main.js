@@ -18,7 +18,7 @@ axios.defaults.withCredentials = true
 
 Vue.use(ElementUI);
 
-Vue.prototype.$serverIP = 'http://192.168.43.14:7001'
+Vue.prototype.$serverIP = 'http://172.20.178.107:7001'
 
 require('./mock.js')
 
