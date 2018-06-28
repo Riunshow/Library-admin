@@ -27,8 +27,9 @@
     display: none;
 }
 .blockPage {
-    /* position: absolute; */
-    /* bottom: 20px; */
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: -50px;
 }
 </style>
 <!-- 用户管理组件 -->
@@ -38,10 +39,9 @@
             <el-input placeholder="请输入书名" v-model="inputSearch" clearable></el-input>
             <el-button class="searchBtn" @click="searchBook">搜索</el-button>
             <!-- 导入excel -->
-            <!-- <input id="upload" type="file" @change="importExcel(this)"  accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" /> -->
             <el-button class="uploadExcel" @click="addClick">
-                导入到excel
-                <input class="uploadInput" type="file" @change="importExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></input>
+                导入 excel
+                <input ref="importExcel" class="uploadInput" type="file" @change="importExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></input>
             </el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
@@ -51,7 +51,7 @@
                 <el-option  v-for="item in selectCategory" :key="item.value" :label="item.label" :value="item.label"></el-option>
             </el-select>
         </div>
-        <el-table :data="tableData" id="out-table">
+        <el-table :data="tableData" id="out-table" v-loading="loading">
             <template v-for="column in tableColumns">
                 <el-table-column :label="column.label" :prop="column.prop"></el-table-column>
             </template>
@@ -92,14 +92,14 @@
         <div class="blockPage">
             <el-pagination
                 layout="prev, pager, next"
-                :total="50">
+                @current-change="handleCurrentChange"
+                :total="count">
             </el-pagination>
         </div>
     </div>   
 </template>
 
 <script>
-    import axios from 'axios'
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
     export default {
@@ -125,17 +125,21 @@
                 nowTableData: [],
                 tableColumns: [
                     { label: 'id', prop: 'id'},                    
-                    { label: '入库日期', prop: 'pdate'},
+                    { label: '入库日期', prop: 'updated_at'},
                     { label: '书名', prop: 'name'},
-                    { label: '分类', prop: 'type'}
+                    { label: '分类', prop: 'Category.type'}
                 ],
                 delIndex: '',
                 delRows: '',
                 searchCate: '',
+                count: 0, // 书的总数
+                isFileChange: true,
+                currentPageSave: 1,
+                loading: true,
             };
         },
         mounted() {
-            this.getCategory()            
+            // this.getCategory()            
             this.getAllBook()
         },
         methods: {
@@ -146,15 +150,18 @@
                 //         _this.selectCategory = results.data
                 //     })
             },
+            // 获取所有书的数据
             getAllBook() {
-                const _this = this
-                axios.get('/book')
+                this.$axios.get('/book')
                     .then(results => {
-                        console.log(results.data);
-                        _this.tableData = results.data
-                        _this.nowTableData = _this.tableData     
+                        console.log(results.data)
+                        this.count = results.data.count
+                        this.tableData = results.data.rows
+                        this.nowTableData = this.tableData 
+                        this.loading = false  
                     })
             },
+            // 书详细信息
             getBookInfo(row){
         		this.$store.commit('save_detail_bookInfo', row);
                 this.$router.push({path: `bookinfo/${row.id}`})
@@ -164,47 +171,61 @@
                 this.dialogFormVisible = true
             },
             getChangeCate() {
-                const _this = this
-                _this.dialogFormVisible = false;
+                this.dialogFormVisible = false;
 
-                if (_this.form.region == '') {
-                    _this.$message.error('修改失败,所选内容不能为空')
+                if (this.form.region == '') {
+                    this.$message.error('修改失败,所选内容不能为空')
                 }
 
-                axios.put('/book/' + _this.newRow.id,{
-                    category: _this.newRow.value
+                this.$axios.put('/book/' + this.newRow.id,{
+                    category: this.newRow.value
                 }).then((result) => {
                     if (result.data.code == 0) {
-                        _this.$message('修改成功')       
-                        _this.newRow.cate = _this.form.region
-                        console.log(_this.newRow);
+                        this.$message('修改成功')       
+                        this.newRow.cate = this.form.region
                     } else{
-                        _this.$message('修改失败,请刷新重试')
+                        this.$message('修改失败,请刷新重试')
                     }
                 })
                 .catch((err) => {
                     console.log(err)
-                    _this.$message.error('修改出现问题,请联系管理员')
+                    this.$message.error('修改出现问题,请联系管理员')
                 })
 
                 
             },
+            // 分页
+            handleCurrentChange(val) {
+                console.log('当前页', val);
+                this.currentPageSave = val
+                this.$axios
+                    .get('/book?offset=' + (val-1))
+                    .then((results) => {
+                        this.tableData = results.data.rows
+                        this.nowTableData = this.tableData     
+                    })
+                
+            },
+            // 获取点击的删除行
             getDelRow(index, rows){
                 this.dialogVisible = true
                 this.delIndex = index
                 this.delRows = rows
             },
+            // 删除点击的当前行
             deleteRow() {
                 this.dialogVisible = false
                 this.tableData.splice(this.delIndex, 1);
 
-                const _this = this
-
-                axios.delete('/book/'+ this.delRows.id)
-                    .then(() => {
-                        _this.$message('删除成功')
+                this.$axios.delete('/book/'+ this.delRows.id)
+                    .then((res) => {
+                        this.$message('删除成功')
+                    })
+                    .catch((error) => {
+                        this.$message.error('错了哦，这是一条错误消息');
                     })
             },
+            // 导出到 excel
             exportExcel () {
                 /* generate workbook object from table */
                 var wb = XLSX.utils.table_to_book(document.querySelector('#out-table'))
@@ -215,9 +236,12 @@
                 } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
                 return wbout
             },
+            // 导入 excel
             importExcel(obj) {
+
                 let _this = this;
                 let inputDOM = this.$refs.inputer;
+                console.log(inputDOM)
                 // 通过DOM取文件数据
                 this.file = event.currentTarget.files[0];
                 var rABS = false; //是否将文件读取为二进制字符串
@@ -254,7 +278,7 @@
                             let obj = {}
                             obj.name = v.name
                             obj.cover = v.cover
-                            obj.type = v.type
+                            obj.cid = v.cid
                             obj.company = v.company
                             obj.author = v.author
                             obj.blurb = v.blurb
@@ -263,11 +287,6 @@
 
                             arr.push(obj)
                         })
-                        console.log(arr)
-                        // let para = {
-                        //     //withList: JSON.stringify(this.da)
-                        //     withList: arr
-                        // }
                         _this.$axios.post('/book', {
                             booklist: arr
                         }).then((res) => {
@@ -275,14 +294,12 @@
                                 message: '请耐心等待导入成功',
                                 type: 'success'
                             });
+                            _this.$refs.importExcel.value = null;
+                            _this.getAllBook()
+                            _this.handleCurrentChange(_this.currentPageSave)
                         }).catch((erro) => {
                             _this.$message.error('错了哦，这是一条错误消息');
                         })
-                        
-                        // withImport(para).then(res => {
-                        //     window.location.reload()
-                        // })
-                        
                     }
                     reader.readAsArrayBuffer(f);
                 }
@@ -317,7 +334,7 @@
                 if (_this.inputSearch == '') {
                     _this.$message.error('请输入要搜索的名字')
                 }else {
-                    axios.post('/book/search', {
+                    this.$axios.post('/book/search', {
                         'name': _this.inputSearch,
                     })
                         .then((results) => {
