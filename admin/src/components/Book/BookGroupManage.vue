@@ -43,9 +43,9 @@
 				</el-table-column>
 				<el-table-column prop="" label="分类" align="center">
 					<template slot-scope="scope">
-						<el-select v-model="selectTypeModel" @visible-change="getType(scope.$index, scope.row)" placeholder="请选择" size="small">
+						<el-select v-model="selectTypeModel[scope.$index]" @visible-change="getType(scope.$index, scope.row)" placeholder="请选择" size="small">
 							<el-option
-								v-for="item in selectType"
+								v-for="(item,index) in selectType"
 								:key="item.id"
 								:label="item.type"
 								:value="item.id">
@@ -85,7 +85,7 @@ export default {
 			delRows: 0,
 			bookTableData: [],
 			selectType: [],
-			selectTypeModel: '',
+			selectTypeModel: [],
 			addBookCategory: false,
 			options: [],
 			form: {
