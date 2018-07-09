@@ -72,8 +72,6 @@
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
   data () {
 	return {
@@ -103,6 +101,7 @@ export default {
 		getBookCategory() {                	
 			this.$axios.get('/category')
 				.then(results => {
+					console.log('aaa: ', results);
 					this.bookTableData = results.data
 					this.loading = false
 				})
@@ -128,7 +127,7 @@ export default {
 		// 删除子分类
 		deleteBookRow() {
 			this.dialogVisible = false
-			axios.delete('/category/'+ this.selectTypeModel)
+			this.$axios.delete('/category/'+ this.selectTypeModel)
 				.then(() => {
 					this.selectTypeModel = ''
 					this.$message('删除成功')
@@ -140,7 +139,7 @@ export default {
 			if (this.form.nameDirection == '' || this.form.nameCategory == '') {
 				this.$message.error('输入不能为空')
 			}else {
-				axios.post('/category', {
+				this.$axios.post('/category', {
 					category: this.form.nameDirection,
 					type: this.form.nameCategory
 			 	})

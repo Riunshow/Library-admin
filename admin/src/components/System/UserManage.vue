@@ -22,6 +22,15 @@
 .options{
     margin: 10px;
 }
+.uploadExcel input[type=file]
+{
+    display: none;
+}
+.blockPage {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: -50px;
+}
 </style>
 <!-- 用户管理组件 -->
 <template>
@@ -29,12 +38,17 @@
         <div class="search-place">
             <el-input placeholder="请输入要搜索用户名" v-model="inputSearch" clearable></el-input>
             <el-button class="searchBtn" @click="searchUser">搜索</el-button>
+             <!-- 导入excel -->
+            <el-button class="uploadExcel searchBtn" @click="addClick">
+                导入 excel
+                <input ref="importExcel" class="uploadInput" type="file" @change="importExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></input>
+            </el-button>
             <!-- 导出到 excel -->
             <el-button type="primary" @click="exportExcel" class="searchBtn">导出到 Excel</el-button>
             <el-button type="success" @click="resetAll" class="searchBtn">重置</el-button>
-            <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole' class="selectRole">
+            <!-- <el-select v-model="selectSearch" placeholder="分类筛选" filterable @change='getSearchRole' class="selectRole">
                 <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value" ></el-option>
-            </el-select>
+            </el-select> -->
         </div>
         <el-table :data="tableData" id="out-table" v-loading="loading">
             <template v-for="column in tableColumns">
@@ -66,6 +80,16 @@
                 </template>
             </el-table-column>
         </el-table>
+        <div class="blockPage" v-show="showPagination">
+            <el-pagination
+                layout="prev, pager, next"
+                @current-change="handleCurrentChange"
+                :total="count">
+            </el-pagination>
+        </div>
+        <div class="blockPage" v-show="!showPagination">
+            <span>搜索结果只展示 10 条数据</span>
+        </div>
     </div>   
 </template>
 
@@ -77,6 +101,7 @@
             return {
                 inputSearch: '',
                 selectSearch: '',
+                showPagination: true,                
                 options: [{
                     value: '-1',
                     label: '全部',
@@ -127,6 +152,8 @@
                 searchRole: '',
                 selectRole: '', // 修改权限时,选择的 role
                 loading: true,
+                count: 0,
+                currentPageSave: 0,
             };
         },
         created(){
@@ -139,7 +166,8 @@
                 const _this = this
                 this.$axios.get('/admin/user/-1')
                     .then(results => {
-                        for (const key of results.data) {
+                        this.count = results.data.count
+                        for (const key of results.data.rows) {
                             if (key.role == 3) {
                                 key.rolename = '系统管理员'
                             } else if (key.role == 2) {
@@ -148,14 +176,34 @@
                                 key.rolename = '普通用户'                                
                             }
                         }
-                        _this.tableData = results.data
-                        _this.nowTableData = _this.tableData
+                        _this.tableData = results.data.rows
+                        _this.nowTableData = _this.tableData.rows
                         this.loading = false
                     })
             },
             getUserInfo(row){
         		this.$store.commit('save_detail_userInfo', row);
                 this.$router.push({path: `userinfo/${row.id}`})
+            },
+            // 分页
+            handleCurrentChange(val) {
+                this.currentPageSave = val
+                this.$axios
+                    .get('/admin/user/-1?offset=' + (val-1))
+                    .then((results) => {
+                        for (const key of results.data.rows) {
+                            if (key.role == 3) {
+                                key.rolename = '系统管理员'
+                            } else if (key.role == 2) {
+                                key.rolename = '图书管理员'
+                            } else if (key.role == 1) {
+                                key.rolename = '普通用户'                                
+                            }
+                        }
+                        this.tableData = results.data.rows
+                        this.nowTableData = this.tableData.rows    
+                    })
+                
             },
             clickChangeRole(row) {
                 this.newRow = row     
@@ -204,6 +252,78 @@
                 } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
                 return wbout
             },
+            // 导入 excel
+            importExcel(obj) {
+
+                let _this = this;
+                let inputDOM = this.$refs.inputer;
+                // 通过DOM取文件数据
+                this.file = event.currentTarget.files[0];
+                var rABS = false; //是否将文件读取为二进制字符串
+                var f = this.file;
+                var reader = new FileReader();
+                //if (!FileReader.prototype.readAsBinaryString) {
+                FileReader.prototype.readAsBinaryString = function(f) {
+                    var binary = "";
+                    var rABS = false; //是否将文件读取为二进制字符串
+                    var pt = this;
+                    var wb; //读取完成的数据
+                    var outdata;
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var bytes = new Uint8Array(reader.result);
+                        var length = bytes.byteLength;
+                        for(var i = 0; i < length; i++) {
+                            binary += String.fromCharCode(bytes[i]);
+                        }
+                        var XLSX = require('xlsx');
+                        if(rABS) {
+                            wb = XLSX.read(btoa(fixdata(binary)), { //手动转化
+                                type: 'base64'
+                            });
+                        } else {
+                            wb = XLSX.read(binary, {
+                                type: 'binary'
+                            });
+                        }
+                        outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);//outdata就是你想要的东西
+                        this.da = [...outdata]
+                        let arr = []
+                        this.da.map(v => {
+                            let obj = {}
+                            obj.account = v.account
+                            obj.nickname = v.nickname
+                            obj.avatar = v.avatar
+                            obj.signature = v.signature
+                            obj.password = v.password
+                            arr.push(obj)
+                        })
+                        _this.$axios.post('/user/register', {
+                            userList: arr
+                        }).then((res) => {
+                            _this.$message({
+                                message: '请耐心等待导入成功',
+                                type: 'success'
+                            });
+                            _this.$refs.importExcel.value = null;
+                            _this.getAllUser()
+                            _this.handleCurrentChange(_this.currentPageSave)
+                        }).catch((erro) => {
+                            _this.$message.error('错了哦，这是一条错误消息');
+                        })
+                    }
+                    reader.readAsArrayBuffer(f);
+                }
+                if(rABS) {
+                    reader.readAsArrayBuffer(f);
+                } else {
+                    reader.readAsBinaryString(f);
+                }
+            },
+            addClick() {
+                const addInput = document.querySelector('.uploadInput')
+                addInput.click();
+            },
             getSearchRole(value){
                 this.searchRole = value
                 this.tableData = []
@@ -218,17 +338,28 @@
                 }
             },
             searchUser() {
-                const _this = this
                 let options = {}
                 this.tableData = []
 
-                if (_this.inputSearch == '' && _this.selectSearch == '') {
-                    _this.$message.error('请输入要搜索的用户名')
+                if (this.inputSearch == '' && this.selectSearch == '') {
+                    this.$message.error('请输入要搜索的用户名')
                     return;
                 }
-                this.$axios.get('/admin/search?name=' + _this.inputSearch)
+                this.$axios.get('/admin/search?name=' + this.inputSearch)
                     .then((results) => {
-                        _this.tableData = results.data
+                        this.showPagination = false
+
+                        for (const key of results.data) {
+                            if (key.role == 3) {
+                                key.rolename = '系统管理员'
+                            } else if (key.role == 2) {
+                                key.rolename = '图书管理员'
+                            } else if (key.role == 1) {
+                                key.rolename = '普通用户'                                
+                            }
+                        }
+                        this.tableData = results.data
+                        
                         this.$message('搜索成功')
                     })
                     .catch((err) => {
@@ -238,6 +369,7 @@
             resetAll() {
                 this.inputSearch = ''
                 this.selectSearch = ''
+                this.showPagination = true
                 this.getAllUser()               
             },
         }
