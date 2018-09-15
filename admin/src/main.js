@@ -8,6 +8,8 @@ import './assets/custom.scss';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-default/index.css';
 
+import VCharts from 'v-charts'
+
 import store from '@/store/index';
 Vue.config.productionTip = false;
 
@@ -17,6 +19,7 @@ Vue.prototype.$axios = axios
 axios.defaults.withCredentials = true
 
 Vue.use(ElementUI);
+Vue.use(VCharts)
 
 Vue.prototype.$serverIP = 'http://172.20.178.107:7001'
 
