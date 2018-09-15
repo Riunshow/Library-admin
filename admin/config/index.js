@@ -47,6 +47,14 @@ module.exports = {
                 target: 'http://sb:7001',
                 // changeOrigin: true
             },
+            '/chapter': {
+                target: 'http://sb:7001',
+                // changeOrigin: true
+            },
+            '/community': {
+                target: 'http://sb:7001',
+                // changeOrigin: true
+            }
         },
         // CSS Sourcemaps off by default because relative paths are "buggy"
         // with this option, according to the CSS-Loader README

@@ -14,9 +14,12 @@ import UserGroupManage from '@/components/System/UserGroupManage'
 import UserInfo from '@/components/System/UserInfo'
 import Personal from '@/components/System/PersonalCenter'
 
+import ArticleManage from '@/components/Article/ArticleManage'
+
 import BookInfo from '@/components/Book/BookInfo'
 import BookManage from '@/components/Book/BookManage'
 import BookGroupManage from '@/components/Book/BookGroupManage'
+import BookChapter from '@/components/Book/BookChapter'
 
 Vue.use(Router)
 
@@ -76,6 +79,14 @@ const router = new Router({
                     },
                 },
                 {
+                    path: 'articlemanage',
+                    name: '文章管理页',
+                    component: ArticleManage,
+                    meta: {
+                        requireAuth: true
+                    },
+                },
+                {
                     path: 'bookmanage',
                     name: '图书管理',
                     component: BookManage,
@@ -89,6 +100,15 @@ const router = new Router({
                     component: BookInfo,
                     meta: {
                         requireAuth: true
+                    },
+                },
+                {
+                    path: 'bookchapter',
+                    name: '图书章节添加页',
+                    component: BookChapter,
+                    meta: {
+                        requireAuth: true,
+                        requireQuery: true
                     },
                 },
                 {
@@ -118,7 +138,6 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
     if (to.meta.requireAuth) {
-        // if (store.state.loginUser.role === 0) {
         if (sessionStorage.length === 0) {
             next({
                 path: '/login'
@@ -142,6 +161,15 @@ router.beforeEach((to, from, next) => {
         }
     } else {
         next()
+    }
+    if (to.meta.requireQuery) {
+        if (JSON.stringify(to.query) == "{}") {
+            next({
+                path: '/bookmanage'
+            })
+        }else {
+            next()
+        }
     }
 })
 

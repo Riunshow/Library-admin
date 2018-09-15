@@ -80,15 +80,12 @@
                 </template>
             </el-table-column>
         </el-table>
-        <div class="blockPage" v-show="showPagination">
+        <div class="blockPage">
             <el-pagination
                 layout="prev, pager, next"
                 @current-change="handleCurrentChange"
                 :total="count">
             </el-pagination>
-        </div>
-        <div class="blockPage" v-show="!showPagination">
-            <span>搜索结果只展示 10 条数据</span>
         </div>
     </div>   
 </template>
@@ -100,8 +97,7 @@
         data() {
             return {
                 inputSearch: '',
-                selectSearch: '',
-                showPagination: true,                
+                selectSearch: '',               
                 options: [{
                     value: '-1',
                     label: '全部',
@@ -163,7 +159,6 @@
         },
         methods: {
             getAllUser() {
-                const _this = this
                 this.$axios.get('/admin/user/-1')
                     .then(results => {
                         this.count = results.data.count
@@ -176,8 +171,8 @@
                                 key.rolename = '普通用户'                                
                             }
                         }
-                        _this.tableData = results.data.rows
-                        _this.nowTableData = _this.tableData.rows
+                        this.tableData = results.data.rows
+                        this.nowTableData = this.tableData.rows
                         this.loading = false
                     })
             },
@@ -188,6 +183,9 @@
             // 分页
             handleCurrentChange(val) {
                 this.currentPageSave = val
+                if (val == 0) {
+                    val += 1
+                }
                 this.$axios
                     .get('/admin/user/-1?offset=' + (val-1))
                     .then((results) => {
@@ -201,7 +199,7 @@
                             }
                         }
                         this.tableData = results.data.rows
-                        this.nowTableData = this.tableData.rows    
+                        this.nowTableData = this.tableData.rows
                     })
                 
             },
@@ -212,32 +210,31 @@
                 this.selectRole = value;
             },
             changeRole() {
-                const _this = this
-                _this.dialogFormVisible = false;
-                if (_this.form.region == '') {
-                    _this.$message.error('修改失败,所选内容不能为空')
+                this.dialogFormVisible = false;
+                if (this.form.region == '') {
+                    this.$message.error('修改失败,所选内容不能为空')
           
-                }else if(_this.form.region == '全部'){
-                    _this.$message.error('修改失败')
+                }else if(this.form.region == '全部'){
+                    this.$message.error('修改失败')
                    
                 }else{
-                    this.$axios.put('/admin/' + _this.newRow.id,{
-                        role: _this.selectRole
+                    this.$axios.put('/admin/' + this.newRow.id,{
+                        role: this.selectRole
                     }).then((result) => {
                         if (result.data[0] == 1) {
-                            _this.$message('修改成功')
-                            if (_this.selectRole == 3) {
-                                 _this.newRow.rolename = '系统管理员'
-                            } else if (_this.selectRole == 2) {
-                                 _this.newRow.rolename = '图书管理员'
-                            } else if (_this.selectRole == 1) {
-                                 _this.newRow.rolename = '普通用户'                                
+                            this.$message('修改成功')
+                            if (this.selectRole == 3) {
+                                 this.newRow.rolename = '系统管理员'
+                            } else if (this.selectRole == 2) {
+                                 this.newRow.rolename = '图书管理员'
+                            } else if (this.selectRole == 1) {
+                                 this.newRow.rolename = '普通用户'                                
                             }                                     
                         } else{
-                            _this.$message('修改失败,请刷新重试')
+                            this.$message('修改失败,请刷新重试')
                         }
                     }).catch((err) => {
-                        _this.$message.error('修改出现问题,请联系管理员')
+                        this.$message.error('修改出现问题,请联系管理员')
                     })
                     
                 }
@@ -248,14 +245,12 @@
                 /* get binary string as output */
                 var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
                 try {
-                    FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'book-manage.xlsx')
+                    FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'user-manage.xlsx')
                 } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
                 return wbout
             },
             // 导入 excel
             importExcel(obj) {
-
-                let _this = this;
                 let inputDOM = this.$refs.inputer;
                 // 通过DOM取文件数据
                 this.file = event.currentTarget.files[0];
@@ -298,18 +293,18 @@
                             obj.password = v.password
                             arr.push(obj)
                         })
-                        _this.$axios.post('/user/register', {
+                        this.$axios.post('/admin/register', {
                             userList: arr
                         }).then((res) => {
-                            _this.$message({
+                            this.$message({
                                 message: '请耐心等待导入成功',
                                 type: 'success'
                             });
-                            _this.$refs.importExcel.value = null;
-                            _this.getAllUser()
-                            _this.handleCurrentChange(_this.currentPageSave)
+                            this.$refs.importExcel.value = null;
+                            this.getAllUser()
+                            this.handleCurrentChange(this.currentPageSave)
                         }).catch((erro) => {
-                            _this.$message.error('错了哦，这是一条错误消息');
+                            this.$message.error('错了哦，这是一条错误消息');
                         })
                     }
                     reader.readAsArrayBuffer(f);
@@ -347,9 +342,7 @@
                 }
                 this.$axios.get('/admin/search?name=' + this.inputSearch)
                     .then((results) => {
-                        this.showPagination = false
-
-                        for (const key of results.data) {
+                        for (const key of results.data.rows) {
                             if (key.role == 3) {
                                 key.rolename = '系统管理员'
                             } else if (key.role == 2) {
@@ -358,7 +351,8 @@
                                 key.rolename = '普通用户'                                
                             }
                         }
-                        this.tableData = results.data
+                        this.tableData = results.data.rows
+                        this.count = results.data.count
                         
                         this.$message('搜索成功')
                     })
@@ -369,7 +363,6 @@
             resetAll() {
                 this.inputSearch = ''
                 this.selectSearch = ''
-                this.showPagination = true
                 this.getAllUser()               
             },
         }

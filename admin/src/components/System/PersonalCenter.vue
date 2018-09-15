@@ -21,16 +21,15 @@
 				}]
 			};
 		},
-		mounted() {
+		created () {
 			this.roleToWord()
 		},
 		methods: {
 			roleToWord() {
-				const _this = this
-				if (_this.tableData[0].role == 20) {                      
-                    _this.tableData[0].identity = '系统管理员'           
-                }else if (_this.tableData[0].role == 10) {
-                    _this.tableData[0].identity = '图书管理员'
+				if (this.tableData[0].role == 3) {                      
+                    this.tableData[0].identity = '系统管理员'           
+                }else if (this.tableData[0].role == 2) {
+                    this.tableData[0].identity = '图书管理员'
                 }
 			}	
 		}

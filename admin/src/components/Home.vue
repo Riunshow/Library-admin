@@ -72,6 +72,8 @@
           path = this.activeIndex + '/' + this.$store.state.userInfo.id;
         }else if (this.activeIndex === '/bookinfo') {
           path = this.activeIndex + '/' + this.$store.state.bookInfo.id;
+        }else if (this.activeIndex === '/bookchapter') {
+          path = this.activeIndex + '/';
         }
         this.$router.push({
           path: path
@@ -114,6 +116,9 @@
     watch: {
       '$route' (to) {
         let flag = false;
+        if (to.path === '/bookchapter/') {
+          return false;
+        }
         for (let option of this.options) {
           if (option.name === to.name) {
             flag = true;

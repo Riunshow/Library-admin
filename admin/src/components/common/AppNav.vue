@@ -40,10 +40,18 @@
             route: '/usermanage',
             name: '用户管理',
           },
-          // {
-          //   route: '/usergroup',
-          //   name: '用户分组管理',
-          // },
+          {
+            route: '/articlemanage',
+            name: '文章管理'
+          },
+          {
+            route: '/bookmanage',
+            name: '图书管理'
+          },
+          {
+            route: '/bookgroup',
+            name: '图书分组管理',
+          },
           {
             route: '/personal',
             name: '个人中心'

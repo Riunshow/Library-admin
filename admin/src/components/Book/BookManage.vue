@@ -32,7 +32,7 @@
     margin-bottom: -50px;
 }
 </style>
-<!-- 用户管理组件 -->
+<!-- 图书管理组件 -->
 <template>
     <div class="user-wrap">
         <div class="search-place">
@@ -54,13 +54,30 @@
 
         </div>
         <el-table :data="tableData" id="out-table" v-loading="loading">
-            <template v-for="column in tableColumns">
-                <el-table-column :label="column.label" :prop="column.prop"></el-table-column>
-            </template>
+            <el-table-column
+                prop="id"
+                label="id"
+                width="80">
+            </el-table-column>
+            <el-table-column
+                prop="updated_at"
+                label="入库日期"
+                width="250">
+            </el-table-column>
+            <el-table-column
+                prop="name"
+                label="书名"
+                width="250">
+            </el-table-column>
+            <el-table-column
+                prop="Category.type"
+                label="分类"
+                width="150">
+            </el-table-column>
             <el-table-column
                 label="操作"
                 prop="">
-                <template slot-scope="scope">
+                <template slot-scope="scope"> 
                     <!-- 详细信息 -->
                     <el-button type="text" @click="getBookInfo(scope.row)" >详细信息</el-button>                    
                     <!-- 修改分类 -->
@@ -99,15 +116,13 @@
             </el-table-column>
         </el-table>
         <!-- 分页 -->
-        <div class="blockPage" v-show="showPagination">
+        <div class="blockPage">
             <el-pagination
                 layout="prev, pager, next"
                 @current-change="handleCurrentChange"
-                :total="count">
+                :total="count"
+                :current-page="current_page">
             </el-pagination>
-        </div>
-        <div class="blockPage" v-show="!showPagination">
-            <span>搜索结果只展示 10 条数据</span>
         </div>
     </div>   
 </template>
@@ -119,7 +134,6 @@
         data() {
             return {
                 loading: true,
-                showPagination: true,
                 inputSearch: '',
                 selectSearch: '',
                 selectCategory: [],
@@ -138,12 +152,6 @@
                 formLabelWidth: '120px',
                 tableData: [],
                 nowTableData: [],
-                tableColumns: [
-                    { label: 'id', prop: 'id'},                    
-                    { label: '入库日期', prop: 'updated_at'},
-                    { label: '书名', prop: 'name'},
-                    { label: '分类', prop: 'Category.type'}
-                ],
                 delIndex: '',
                 delRows: '',
                 searchCate: '',
@@ -156,7 +164,8 @@
                     children: 'type',
                 },
                 chooseType: [],
-                newChangeCate: []
+                newChangeCate: [],
+                current_page: 1,
             };
         },
         mounted() {
@@ -245,7 +254,6 @@
             },
             // 分页
             handleCurrentChange(val) {
-                console.log('当前页', val);
                 this.currentPageSave = val
                 this.$axios
                     .get('/book?offset=' + (val-1))
@@ -269,7 +277,7 @@
                 this.$axios.delete('/book/'+ this.delRows.id)
                     .then((res) => {
                         this.$message('删除成功')
-                        this.getAllBook()
+                        this.current_page = 1
                     })
                     .catch((error) => {
                         this.$message.error('错了哦，这是一条错误消息');
@@ -380,7 +388,6 @@
             // 搜索书籍
             searchBook() {
                 let selectCategory = {}
-                this.showPagination = false
                 if (this.inputSearch == '') {
                     this.$message.error('请输入要搜索的名字')
                 }else {
@@ -400,7 +407,6 @@
             resetAll() {
                 this.inputSearch = ''
                 this.selectSearch = ''
-                this.showPagination = true
                 this.getAllBook()    
             },
         }
