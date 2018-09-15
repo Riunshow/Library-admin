@@ -23,7 +23,7 @@
       return {
         days: 7,
         chartData: {
-          columns: ['日期', '用户统计', '社区文章统计', '图书统计', '图书分类统计', '章节更新统计'],
+          columns: sessionStorage.user_role == 3 ? ['日期', '用户统计', '社区文章统计', '图书统计', '图书分类统计', '章节更新统计'] : ['日期', '图书统计', '图书分类统计', '章节更新统计'],
           rows: []
         },
         stage: {
@@ -62,18 +62,17 @@
           day: ''
         }
 
-        const oneDay = 24 * 60 * 60 * 1000
+				const oneDay = 24 * 60 * 60 * 1000
 
         for (let index = 0; index < this.days; index++) {
           const todayMS = new Date().getTime() - oneDay * index
           const today = new Date(todayMS)
 
           date.month = today.getMonth() + 1
-          date.day = today.getDate()
+					date.day = today.getDate()
 
           for (const key in this.stage) {
             if (this.stage.hasOwnProperty(key)) {
-
               if (!this.stage[key][index] || this.stage[key][index].dates != date.day) {
                 const tmpData = {
                   date: date.day,
@@ -117,7 +116,7 @@
               }
             }
           }
-          setChartData.push(dataTmp)
+					setChartData.push(dataTmp)
         }
         this.chartData.rows = setChartData.reverse()
 
